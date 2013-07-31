@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 
 /// <summary>
@@ -20,22 +20,11 @@ public class SceneManager : MonoBehaviour
 	
 	}
     /// <summary>
-    /// 換到新場景
+    /// 切換場景
     /// </summary>
     /// <param name="newSceneID">新場景ID</param>
     public void ChangeScene(int newSceneID)
     {
         throw new System.NotImplementedException();
     }
-	
-//	/// <summary>
-//	/// 換到新場景
-//	/// </summary>
-//	/// <param name='newSceneID'>
-//	/// 新場景ID
-//	/// </param>
-//	void ChangeScene(int newSceneID)
-//	{
-//		
-//	}
 }
