@@ -23,8 +23,17 @@ public class SceneManager : MonoBehaviour
     /// 切換場景
     /// </summary>
     /// <param name="newSceneID">新場景ID</param>
-    public void ChangeScene(int newSceneID)
+	public void ChangeScene(int newSceneID)
     {
-        throw new System.NotImplementedException();
+        StartCoroutine(ChangeSceneIEnumerator(newSceneID));
+    }
+    /// <summary>
+    /// 切換場景
+    /// </summary>
+    /// <param name="newSceneID">新場景ID</param>
+    IEnumerator ChangeSceneIEnumerator(int newSceneID)
+    {
+        yield return Application.LoadLevelAsync("Auction");
+        Debug.Log("test");
     }
 }
