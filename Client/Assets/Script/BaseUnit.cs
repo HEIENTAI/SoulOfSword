@@ -6,5 +6,7 @@ using System.Collections.Generic;
 /// </summary>
 public class BaseUnit : MonoBehaviour
 {
+    protected GameObject _renderObject = null; // 顯示用的實體物件
+
 
 }

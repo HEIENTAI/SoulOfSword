@@ -5,10 +5,30 @@ using System.Collections;
 /// 管理場景讀取切換
 /// FelesSong@SoulOfSword
 /// </summary>
-public class SceneManager : MonoBehaviour 
+public class SceneManager : MonoBehaviour
 {
-
-	// Use this for initialization
+    
+    #region Singleton
+    private static SceneManager _instance;
+    public static SceneManager Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                GameObject go = new GameObject("SceneManger");
+                DontDestroyOnLoad(go);
+                _instance = go.AddComponent<SceneManager>();
+                if (GameMain.Instance)
+                {
+                    go.transform.parent = GameMain.Instance.gameObject.transform;
+                }
+            }
+            return _instance;
+        }
+    }
+    #endregion
+    // Use this for initialization
 	void Start () 
 	{
 	
@@ -19,6 +39,12 @@ public class SceneManager : MonoBehaviour
 	{
 	
 	}
+
+    void OnDestroy()
+    {
+        _instance = null;
+    }
+
     /// <summary>
     /// 切換場景
     /// </summary>
@@ -33,7 +59,12 @@ public class SceneManager : MonoBehaviour
     /// <param name="newSceneID">新場景ID</param>
     IEnumerator ChangeSceneIEnumerator(int newSceneID)
     {
+        Resources.UnloadUnusedAssets();
         yield return Application.LoadLevelAsync("Auction");
+
+        NPCUnit npcTemp = NPCUnitManager.Instance.GetNPC(1);
+        npcTemp.GenerateModel();
+
         Debug.Log("test");
     }
 }

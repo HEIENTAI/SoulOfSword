@@ -1,36 +1,36 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
   <Class Name="SceneManager" Collapsed="true">
-    <Position X="8" Y="2.75" Width="1.5" />
+    <Position X="11.5" Y="2.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAQAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgA=</HashCode>
+      <HashCode>AAQBAAAAACAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAgA=</HashCode>
       <FileName>Assets\Script\SceneManager.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="GameMain" Collapsed="true">
-    <Position X="9.75" Y="0.75" Width="1.5" />
+    <Position X="6.25" Y="1.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAQAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>gAQFAAACADAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAEA=</HashCode>
       <FileName>Assets\Script\GameMain.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="GameNone" Collapsed="true" BaseTypeListCollapsed="true">
-    <Position X="11.5" Y="0.75" Width="1.5" />
+    <Position X="6.75" Y="5.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAEAAAAAAACAAAAAAQAAAAAAAAAAAAAQAAAAAAAAAA=</HashCode>
+      <HashCode>AAAEAAAAAAACAAAEAAQAAAAAAAAAAAAAQAAAAAAAAAA=</HashCode>
       <FileName>Assets\Script\GameState.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.137" Collapsed="true" />
   </Class>
   <Class Name="NPCUnitManager" Collapsed="true">
-    <Position X="8" Y="1.75" Width="1.5" />
+    <Position X="11.5" Y="1.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAQAAAAAACAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAA=</HashCode>
       <FileName>Assets\Script\NPCUnitManager.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="PlayerControl" Collapsed="true">
-    <Position X="9.75" Y="1.75" Width="1.5" />
+    <Position X="6.25" Y="2.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Assets\Script\PlayerControl.cs</FileName>
@@ -40,7 +40,7 @@
     <Position X="1.5" Y="2.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>Assets\Script\RoleUnit.cs</FileName>
+      <FileName>Assets\Script\PCUnit.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="BaseUnit">
@@ -58,53 +58,68 @@
     </TypeIdentifier>
   </Class>
   <Class Name="ResourceDownload" Collapsed="true">
-    <Position X="11.5" Y="1.75" Width="1.5" />
+    <Position X="8" Y="2.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Assets\Script\ResourceDownload.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="ResourceStation" Collapsed="true">
-    <Position X="6.25" Y="2.75" Width="1.5" />
+    <Position X="9.75" Y="2.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Assets\Script\ResourceStation.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="itemData" Collapsed="true">
-    <Position X="6.25" Y="1.75" Width="1.5" />
+    <Position X="9.75" Y="1.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Assets\Script\itemData.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Skill" Collapsed="true">
-    <Position X="9.75" Y="2.75" Width="1.5" />
+    <Position X="6.25" Y="3.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Assets\Script\Skill.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="EventManager" Collapsed="true">
-    <Position X="6.25" Y="0.75" Width="1.5" />
+    <Position X="8" Y="0.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Assets\Script\EventManager.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="EvnetTrigger" Collapsed="true">
-    <Position X="8" Y="0.75" Width="1.5" />
+    <Position X="9.75" Y="0.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Assets\Script\EvnetTrigger.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="DataTableManager">
-    <Position X="6.25" Y="4.5" Width="1.5" />
+  <Class Name="DataTableManager" Collapsed="true">
+    <Position X="6.25" Y="0.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Assets\Script\DataTableManager.cs</FileName>
     </TypeIdentifier>
   </Class>
+  <Class Name="GameEntered" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="8.75" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Assets\Script\GameState.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Interface Name="IGameState" Collapsed="true">
+    <Position X="7.25" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAA=</HashCode>
+      <FileName>Assets\Script\GameState.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
   <Font Name="Microsoft JhengHei" Size="9" />
 </ClassDiagram>

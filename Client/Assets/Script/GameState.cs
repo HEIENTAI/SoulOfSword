@@ -11,31 +11,13 @@ public interface IGameState
     void OnChangeIn();
     void Update();
 }
-
+/// <summary>
+/// 無
+/// </summary>
 public class GameNone : IGameState
 {
+    #region Singleton
     private static GameNone _instance = null;
-
-    GameNone()
-    {
-        ;
-    }
-
-    ~GameNone()
-    {
-        _instance = null;
-    }
-    
-
-    void IGameState.OnChangeIn()
-    {
-        throw new System.NotImplementedException();
-    }
-
-    void IGameState.Update()
-    {
-        throw new System.NotImplementedException();
-    }
 
     public static GameNone Instance
     {
@@ -45,5 +27,74 @@ public class GameNone : IGameState
                 _instance = new GameNone();
             return _instance;
         }
+    }
+    #endregion
+    GameNone()
+    {
+        ;
+    }
+
+    ~GameNone()
+    {
+        _instance = null;
+    }
+
+    public override string ToString()
+    {
+        return "無";
+    }
+
+    void IGameState.OnChangeIn()
+    {
+        
+    }
+
+    void IGameState.Update()
+    {
+        GameMain.Instance.ChangeGameState(GameEntered.Instance);
+    }
+}
+
+/// <summary>
+/// 在遊戲中
+/// </summary>
+public class GameEntered : IGameState
+{
+    #region Singleton
+    private static GameEntered _instance = null;
+
+    public static GameEntered Instance
+    {
+        get
+        {
+            if (_instance == null)
+                _instance = new GameEntered();
+            return _instance;
+        }
+    }
+    #endregion
+    GameEntered()
+    {
+        ;
+    }
+
+    ~GameEntered()
+    {
+        _instance = null;
+    }
+
+    public override string ToString()
+    {
+        return "遊戲中狀態";
+    }
+
+    void IGameState.OnChangeIn()
+    {
+        SceneManager.Instance.ChangeScene(1);
+    }
+
+    void IGameState.Update()
+    {
+        //throw new System.NotImplementedException();
     }
 }

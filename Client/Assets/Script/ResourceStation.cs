@@ -7,5 +7,30 @@ using System.Collections.Generic;
 /// </summary>
 public class ResourceStation : MonoBehaviour
 {
+    #region Singleton
+    private static ResourceStation _instance;
 
+    public static ResourceStation Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                GameObject go;
+                GameMain gameMain = GameMain.Instance;
+
+                go = (gameMain == null) ? new GameObject("ResourceStation") : gameMain.gameObject;
+
+                _instance = go.AddComponent<ResourceStation>();
+            }
+            return _instance;
+        }
+    }
+    #endregion
+
+
+    public Object GetResource(string name)
+    {
+        return Resources.Load(name);
+    }
 }

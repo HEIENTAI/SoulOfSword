@@ -24,10 +24,6 @@ public class GameMain : MonoBehaviour
     /// 遊戲狀態
     /// </summary>
     private IGameState _gameState;
-    private SceneManager _sceneManager;
-
-
-
 
     void Awake()
     {
@@ -40,19 +36,32 @@ public class GameMain : MonoBehaviour
     void Start()
     {
         _gameState = GameNone.Instance;
-		_sceneManager = gameObject.AddComponent<SceneManager>();
-        _sceneManager.ChangeScene(1);
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (_gameState != null)
+            _gameState.Update();
 
     }
 
     void OnDestroy()
     {
-        _sceneManager = null;
+        _gameState = null;
         _instance = null;
     }
+
+    #region 遊戲狀態相關
+    public void ChangeGameState(IGameState newGameState)
+    {
+        if (newGameState == _gameState)
+            return;
+        Debug.Log(string.Format("遊戲狀態改變 從 {0} -> {1}", _gameState, newGameState));
+        _gameState = null;
+        _gameState = newGameState;
+        _gameState.OnChangeIn();
+    }
+    #endregion
+
 }
