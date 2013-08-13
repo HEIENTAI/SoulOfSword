@@ -19,7 +19,7 @@ public class SceneManager : MonoBehaviour
                 GameObject go = new GameObject("SceneManger");
                 DontDestroyOnLoad(go);
                 _instance = go.AddComponent<SceneManager>();
-                if (GameMain.Instance)
+                if (GameMain.Instance != null)
                 {
                     go.transform.parent = GameMain.Instance.gameObject.transform;
                 }
@@ -28,6 +28,12 @@ public class SceneManager : MonoBehaviour
         }
     }
     #endregion
+    private bool _changeSceneComplete;
+    public bool ChangeSceneComplete
+    {
+        get { return _changeSceneComplete; }
+    }
+
     // Use this for initialization
 	void Start () 
 	{
@@ -51,6 +57,7 @@ public class SceneManager : MonoBehaviour
     /// <param name="newSceneID">新場景ID</param>
 	public void ChangeScene(int newSceneID)
     {
+        _changeSceneComplete = false;
         StartCoroutine(ChangeSceneIEnumerator(newSceneID));
     }
     /// <summary>
@@ -61,10 +68,15 @@ public class SceneManager : MonoBehaviour
     {
         Resources.UnloadUnusedAssets();
         yield return Application.LoadLevelAsync("Auction");
+        //NPCUnit npcTemp = NPCUnitManager.Instance.GetNPC(1);
+        //npcTemp.GenerateModel();
 
-        NPCUnit npcTemp = NPCUnitManager.Instance.GetNPC(1);
-        npcTemp.GenerateModel();
-
+        GameMain.Instance.LoadSceneOver();
         Debug.Log("test");
+
+        //Camera mainCamera = Camera.main;
+        //mainCamera.transform.position = GameMain.Instance.MyRole.gameObject.transform.position + 10 * Vector3.back + 10 * Vector3.up;
+        //mainCamera.transform.LookAt(GameMain.Instance.MyRole.gameObject.transform);
+        _changeSceneComplete = true;
     }
 }

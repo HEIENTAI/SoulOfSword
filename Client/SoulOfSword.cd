@@ -3,14 +3,14 @@
   <Class Name="SceneManager" Collapsed="true">
     <Position X="11.5" Y="2.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAQBAAAAACAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAgA=</HashCode>
+      <HashCode>IAQFAAAAACAAAAAAAAAAAAAAAAAAAAgAQAAAAIAAAgA=</HashCode>
       <FileName>Assets\Script\SceneManager.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="GameMain" Collapsed="true">
     <Position X="6.25" Y="1.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>gAQFAAACADAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAEA=</HashCode>
+      <HashCode>gASFAAAAADAgAAAEAACAAAAAAAAAAAAAQAAAAABAAUA=</HashCode>
       <FileName>Assets\Script\GameMain.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -25,7 +25,7 @@
   <Class Name="NPCUnitManager" Collapsed="true">
     <Position X="11.5" Y="1.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAQAAAAAACAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAA=</HashCode>
+      <HashCode>AAQFAAAAACAAAAAAAAAAAABAAAAAAAAAUAAAAAAAAEA=</HashCode>
       <FileName>Assets\Script\NPCUnitManager.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -39,21 +39,21 @@
   <Class Name="PCUnit">
     <Position X="1.5" Y="2.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAQAAAAAAAACAAAECAAAAAAIAgAAABAAAAAAAAAA=</HashCode>
       <FileName>Assets\Script\PCUnit.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="BaseUnit">
     <Position X="2.75" Y="0.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAA=</HashCode>
       <FileName>Assets\Script\BaseUnit.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="NPCUnit">
     <Position X="3.75" Y="2.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAACAAIAgAAgAAAAAAAAAAA=</HashCode>
       <FileName>Assets\Script\NPCUnit.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -67,7 +67,7 @@
   <Class Name="ResourceStation" Collapsed="true">
     <Position X="9.75" Y="2.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAACAAAAAA=</HashCode>
       <FileName>Assets\Script\ResourceStation.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -109,10 +109,17 @@
   <Class Name="GameEntered" Collapsed="true" BaseTypeListCollapsed="true">
     <Position X="8.75" Y="5.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAEAAAAAAACAAAEAAQAAAAAAAAAAAAAQAAAAAAAAAA=</HashCode>
       <FileName>Assets\Script\GameState.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="CameraManager">
+    <Position X="10.75" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAABA=</HashCode>
+      <FileName>Assets\Script\CameraManager.cs</FileName>
+    </TypeIdentifier>
   </Class>
   <Interface Name="IGameState" Collapsed="true">
     <Position X="7.25" Y="4.75" Width="1.5" />

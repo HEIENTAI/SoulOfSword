@@ -24,6 +24,14 @@ public class GameMain : MonoBehaviour
     /// 遊戲狀態
     /// </summary>
     private IGameState _gameState;
+    private CameraManager _cameraManager;
+
+    private PCUnit _myRole;
+    public PCUnit MyRole
+    {
+        get { return _myRole;}
+    }
+    private PlayerInput _playerInput;
 
     void Awake()
     {
@@ -36,6 +44,8 @@ public class GameMain : MonoBehaviour
     void Start()
     {
         _gameState = GameNone.Instance;
+        _playerInput = PlayerInput.Instance;
+        _cameraManager = new CameraManager();
     }
 
     // Update is called once per frame
@@ -43,7 +53,8 @@ public class GameMain : MonoBehaviour
     {
         if (_gameState != null)
             _gameState.Update();
-
+        if (SceneManager.Instance.ChangeSceneComplete)
+            _cameraManager.UpdateMainCamera();
     }
 
     void OnDestroy()
@@ -57,11 +68,29 @@ public class GameMain : MonoBehaviour
     {
         if (newGameState == _gameState)
             return;
-        Debug.Log(string.Format("遊戲狀態改變 從 {0} -> {1}", _gameState, newGameState));
+        Common.DebugMsg(string.Format("遊戲狀態改變 從 {0} -> {1}", _gameState, newGameState));
         _gameState = null;
         _gameState = newGameState;
         _gameState.OnChangeIn();
     }
     #endregion
+
+
+    public void PrepareMyRole()
+    {
+        if (_myRole != null)
+            return;
+        Common.DebugMsg("準備pc");
+        _myRole = PCUnit.newInstance(1);
+        _myRole.GenerateModel();
+    }
+    /// <summary>
+    /// 場景切換完畢之後要做的事情
+    /// </summary>
+    public void LoadSceneOver()
+    {
+        PrepareMyRole();
+        _cameraManager.RefreshCurrentSceneCameras();
+    }
 
 }

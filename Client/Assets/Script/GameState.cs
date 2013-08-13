@@ -96,5 +96,6 @@ public class GameEntered : IGameState
     void IGameState.Update()
     {
         //throw new System.NotImplementedException();
+
     }
 }

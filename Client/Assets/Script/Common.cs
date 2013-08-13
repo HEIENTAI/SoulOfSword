@@ -6,5 +6,8 @@ using System.Collections;
 /// </summary>
 public class Common
 {
-    
+    public static void DebugMsg(string msg)
+    {
+        Debug.Log(msg);
+    }
 }
