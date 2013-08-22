@@ -68,6 +68,7 @@ public class SceneManager : MonoBehaviour
     {
         Resources.UnloadUnusedAssets();
         yield return Application.LoadLevelAsync("Auction");
+        //yield return Application.LoadLevelAsync("Desert");
         //NPCUnit npcTemp = NPCUnitManager.Instance.GetNPC(1);
         //npcTemp.GenerateModel();
 

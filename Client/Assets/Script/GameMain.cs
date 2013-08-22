@@ -25,11 +25,14 @@ public class GameMain : MonoBehaviour
     /// </summary>
     private IGameState _gameState;
     private CameraManager _cameraManager;
-
+    public CameraManager CameraManager
+    {
+        get { return _cameraManager; }
+    }
     private PCUnit _myRole;
     public PCUnit MyRole
     {
-        get { return _myRole;}
+        get { return _myRole; }
     }
     private PlayerInput _playerInput;
 
@@ -82,7 +85,9 @@ public class GameMain : MonoBehaviour
             return;
         Common.DebugMsg("準備pc");
         _myRole = PCUnit.newInstance(1);
+
         _myRole.GenerateModel();
+
     }
     /// <summary>
     /// 場景切換完畢之後要做的事情

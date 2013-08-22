@@ -8,5 +8,15 @@ public class BaseUnit : MonoBehaviour
 {
     protected GameObject _renderObject = null; // 顯示用的實體物件
 
-
+    protected Quaternion _direction = Quaternion.identity; // 面向
+    // 設定、取得面向
+    public Quaternion Direction
+    {
+        get { return _direction; }
+        set
+        {
+            _direction = value;
+            transform.rotation = value;
+        }
+    }
 }

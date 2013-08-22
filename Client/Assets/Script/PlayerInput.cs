@@ -48,23 +48,26 @@ public class PlayerInput : MonoBehaviour
         {
             Common.DebugMsg("JoyStick移動結束");            
             GameMain.Instance.MyRole.CrossAnimation("idle");
+            GameMain.Instance.MyRole.StopMove();
         }
     }
     void On_JoystickMove(MovingJoystick move)
     {
         if (move.joystickName == "PlayerInputJoystick")
         {            
-            Common.DebugMsg(string.Format("JoyStick移動中 x = {0} y = {1}", move.joystickAxis.x, move.joystickAxis.y));
+            Common.DebugMsg(string.Format("JoyStick移動中 ({0})", move.joystickAxis));
             //
-            if (Mathf.Abs(move.joystickAxis.y) > 0 && Mathf.Abs(move.joystickAxis.y) < 0.5)
-            {
-                GameMain.Instance.MyRole.CrossAnimation("walk");
-            }
-            else if (Mathf.Abs(move.joystickAxis.y) >= 0.5)
+
+            if (move.joystickAxis.sqrMagnitude >= 0.25)
             {
                 GameMain.Instance.MyRole.CrossAnimation("run");
             }
-            GameMain.Instance.MyRole.move(move.joystickAxis * Time.deltaTime);
+            else if (move.joystickAxis.sqrMagnitude > 0)
+            {
+                GameMain.Instance.MyRole.CrossAnimation("walk");
+            }
+
+            GameMain.Instance.MyRole.Move(move.joystickAxis);
         }
     }
 

@@ -6,7 +6,11 @@ using System.Text;
 public class CameraManager
 {
     List<Camera> _allCamera = new List<Camera>();
-
+    Camera _curCamera = null;
+    public Camera CurrentCamera
+    {
+        get { return _curCamera; }
+    }
     /// <summary>
     /// 刷新這個場景的攝影機
     /// </summary>
@@ -52,8 +56,13 @@ public class CameraManager
                 }
             }
         }
+        if (nearCamera == null)
+        {
+            nearCamera = Camera.main;
+        }
         if (nearCamera != null)
         {
+            _curCamera = nearCamera; // 設定現在的camera
             foreach (Camera ca in _allCamera)
             {
                 ca.enabled = (ca == nearCamera);
