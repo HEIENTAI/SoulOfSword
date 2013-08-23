@@ -66,8 +66,7 @@ public class PlayerInput : MonoBehaviour
             {
                 GameMain.Instance.MyRole.CrossAnimation("walk");
             }
-
-            GameMain.Instance.MyRole.Move(move.joystickAxis);
+            GameMain.Instance.MyRole.Move(move.Axis2Angle(true), move.joystickAxis.magnitude);
         }
     }
 
