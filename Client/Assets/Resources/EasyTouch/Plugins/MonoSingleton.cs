@@ -1,4 +1,4 @@
-/// <summary>
+﻿/// <summary>
 /// Generic Mono singleton.
 /// </summary>
 using UnityEngine;

@@ -1,4 +1,4 @@
-// HTEditorTool v2.0 (MArs 2013)
+﻿// HTEditorTool v2.0 (MArs 2013)
 // HTEditorTool library is copyright (c) of Hedgehog Team
 // Please send feedback or bug reports to the.hedgehog.team@gmail.com
 using UnityEngine;

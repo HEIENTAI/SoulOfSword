@@ -5,29 +5,31 @@ using System.Collections;
 /// 管理場景讀取切換
 /// FelesSong@SoulOfSword
 /// </summary>
-public class SceneManager : MonoBehaviour
+public class SceneManager
+    //: MonoBehaviour
 {
-    
-    #region Singleton
-    private static SceneManager _instance;
-    public static SceneManager Instance
-    {
-        get
-        {
-            if (_instance == null)
-            {
-                GameObject go = new GameObject("SceneManger");
-                DontDestroyOnLoad(go);
-                _instance = go.AddComponent<SceneManager>();
-                if (GameMain.Instance != null)
-                {
-                    go.transform.parent = GameMain.Instance.gameObject.transform;
-                }
-            }
-            return _instance;
-        }
-    }
-    #endregion
+
+    //#region Singleton
+    //private static SceneManager _instance;
+    //public static SceneManager Instance
+    //{
+    //    get
+    //    {
+    //        if (_instance == null)
+    //        {
+    //            GameObject go = new GameObject("SceneManger");
+    //            SceneManager temp = new SceneManager();
+    //            DontDestroyOnLoad(go);
+    //            _instance = go.AddComponent<SceneManager>();
+    //            if (GameMain.Instance != null)
+    //            {
+    //                go.transform.parent = GameMain.Instance.gameObject.transform;
+    //            }
+    //        }
+    //        return _instance;
+    //    }
+    //}
+    //#endregion
     private bool _changeSceneComplete;
     public bool ChangeSceneComplete
     {
@@ -35,21 +37,21 @@ public class SceneManager : MonoBehaviour
     }
 
     // Use this for initialization
-	void Start () 
-	{
+    //void Start () 
+    //{
+        
+    //}
 	
-	}
+    //// Update is called once per frame
+    //void Update () 
+    //{
 	
-	// Update is called once per frame
-	void Update () 
-	{
-	
-	}
+    //}
 
-    void OnDestroy()
-    {
-        _instance = null;
-    }
+    //void OnDestroy()
+    //{
+    //    _instance = null;
+    //}
 
     /// <summary>
     /// 切換場景
@@ -58,7 +60,7 @@ public class SceneManager : MonoBehaviour
 	public void ChangeScene(int newSceneID)
     {
         _changeSceneComplete = false;
-        StartCoroutine(ChangeSceneIEnumerator(newSceneID));
+        GameMain.Instance.StartCoroutine(ChangeSceneIEnumerator(newSceneID));
     }
     /// <summary>
     /// 切換場景
@@ -69,15 +71,10 @@ public class SceneManager : MonoBehaviour
         Resources.UnloadUnusedAssets();
         yield return Application.LoadLevelAsync("Auction");
         //yield return Application.LoadLevelAsync("Desert");
-        //NPCUnit npcTemp = NPCUnitManager.Instance.GetNPC(1);
-        //npcTemp.GenerateModel();
 
         GameMain.Instance.LoadSceneOver();
         Debug.Log("test");
 
-        //Camera mainCamera = Camera.main;
-        //mainCamera.transform.position = GameMain.Instance.MyRole.gameObject.transform.position + 10 * Vector3.back + 10 * Vector3.up;
-        //mainCamera.transform.LookAt(GameMain.Instance.MyRole.gameObject.transform);
         _changeSceneComplete = true;
     }
 }

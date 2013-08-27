@@ -8,7 +8,7 @@
 ///
 public interface IGameState
 {
-    void OnChangeIn();
+    void OnChangeIn(SceneManager sceneManager); // 
     void Update();
 }
 /// <summary>
@@ -44,7 +44,7 @@ public class GameNone : IGameState
         return "無";
     }
 
-    void IGameState.OnChangeIn()
+    void IGameState.OnChangeIn(SceneManager sceneManager)
     {
         
     }
@@ -88,9 +88,9 @@ public class GameEntered : IGameState
         return "遊戲中狀態";
     }
 
-    void IGameState.OnChangeIn()
+    void IGameState.OnChangeIn(SceneManager sceneManager)
     {
-        SceneManager.Instance.ChangeScene(1);
+        sceneManager.ChangeScene(1);
     }
 
     void IGameState.Update()

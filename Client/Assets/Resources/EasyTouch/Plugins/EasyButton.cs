@@ -1,4 +1,4 @@
-// EasyButton library is copyright (c) of Hedgehog Team
+﻿// EasyButton library is copyright (c) of Hedgehog Team
 // Please send feedback or bug reports to the.hedgehog.team@gmail.com
 using UnityEngine;
 using System.Collections;

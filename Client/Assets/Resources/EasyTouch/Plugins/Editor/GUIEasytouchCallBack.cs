@@ -1,4 +1,4 @@
-// EasyTouch library is copyright (c) of Hedgehog Team
+﻿// EasyTouch library is copyright (c) of Hedgehog Team
 // Please send feedback or bug reports to the.hedgehog.team@gmail.com
 
 using UnityEngine;

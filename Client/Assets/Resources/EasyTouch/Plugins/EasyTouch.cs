@@ -1,4 +1,4 @@
-// EasyTouch 3 library is copyright (c) of Hedgehog Team
+﻿// EasyTouch 3 library is copyright (c) of Hedgehog Team
 // Please send feedback or bug reports to the.hedgehog.team@gmail.com
 
 /// <summary>

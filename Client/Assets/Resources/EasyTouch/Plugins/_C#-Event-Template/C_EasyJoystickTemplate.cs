@@ -1,4 +1,4 @@
-// EasyJoystick v2.0 (April 2013)
+﻿// EasyJoystick v2.0 (April 2013)
 // EasyJoystick library is copyright (c) of Hedgehog Team
 // Please send feedback or bug reports to the.hedgehog.team@gmail.com
 using UnityEngine;

@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 // Sets up transformation matrices to scale&scroll water waves
 // for the case where graphics card does not support vertex programs.

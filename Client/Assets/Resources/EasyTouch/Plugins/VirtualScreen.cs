@@ -1,4 +1,4 @@
-// Virtual screen v1.0 (April 2013)
+﻿// Virtual screen v1.0 (April 2013)
 // Virtual screen is copyright (c) of Hedgehog Team
 // Please send feedback or bug reports to the.hedgehog.team@gmail.com
 

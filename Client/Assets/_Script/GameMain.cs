@@ -7,6 +7,10 @@ using System.Collections;
 public class GameMain : MonoBehaviour
 {
     #region Singleton
+    GameMain()
+    {
+        ;
+    }
     private static GameMain _instance = null;
 
     public static GameMain Instance
@@ -24,11 +28,23 @@ public class GameMain : MonoBehaviour
     /// 遊戲狀態
     /// </summary>
     private IGameState _gameState;
+    private SceneManager _sceneManager;
+    public SceneManager SceneManager
+    {
+        get { return _sceneManager; }
+    }
+    
     private CameraManager _cameraManager;
     public CameraManager CameraManager
     {
         get { return _cameraManager; }
     }
+    private EventManager _eventManager;
+    public  EventManager EventManager
+    {
+        get { return _eventManager; }
+    }
+
     private PCUnit _myRole;
     public PCUnit MyRole
     {
@@ -47,8 +63,10 @@ public class GameMain : MonoBehaviour
     void Start()
     {
         _gameState = GameNone.Instance;
+        _sceneManager = new SceneManager();
         _playerInput = PlayerInput.Instance;
         _cameraManager = new CameraManager();
+        _eventManager = new EventManager();
     }
 
     // Update is called once per frame
@@ -56,13 +74,18 @@ public class GameMain : MonoBehaviour
     {
         if (_gameState != null)
             _gameState.Update();
-        if (SceneManager.Instance.ChangeSceneComplete)
+        if (_sceneManager.ChangeSceneComplete)
             _cameraManager.UpdateMainCamera();
+        _eventManager.CheckAndTriggerEvent();
     }
 
     void OnDestroy()
     {
         _gameState = null;
+        _sceneManager = null;
+        _playerInput = null;
+        _cameraManager = null;
+        _eventManager = null;
         _instance = null;
     }
 
@@ -74,7 +97,7 @@ public class GameMain : MonoBehaviour
         Common.DebugMsg(string.Format("遊戲狀態改變 從 {0} -> {1}", _gameState, newGameState));
         _gameState = null;
         _gameState = newGameState;
-        _gameState.OnChangeIn();
+        _gameState.OnChangeIn(_sceneManager);
     }
     #endregion
 
