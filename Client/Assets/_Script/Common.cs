@@ -11,6 +11,14 @@ public static class Common
         Debug.Log(msg);
     }
 
+    /// <summary>
+    /// 依照string.Format的格式輸入參數，印出由string.Format回傳的訊息
+    /// </summary>
+    public static void DebugMsgFormat(string format, params object[] args)
+    {
+        Debug.Log(string.Format(format, args));
+    }
+
     public static float DirectionY(this Camera cam)
     {
         return cam.transform.rotation.eulerAngles.y;
