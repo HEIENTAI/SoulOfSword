@@ -8,5 +8,10 @@ using System.Text;
 /// </summary>
 public class DataTableManager
 {
+    //List<T> another = Newtonsoft.Json.JsonConvert.DeserializeObject<List<T>>(encodeToJson, settings);
+    //foreach(T one in another)
+    //{
+    //    Common.DebugMsgFormat("decode後的結果：\n{0}", one);
+    //}
 
 }
