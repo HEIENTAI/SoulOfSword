@@ -10,112 +10,59 @@ namespace ExcelToJson
 {
     class Program
     {
-        class DataConvertAttribute
-        {
-            public Type DataType
-            {
-                get;
-                protected set;
-            }
-            public string FileName
-            {
-                get;
-                protected set;
-            }
-
-            public DataConvertAttribute(Type setDataType, string setFileName)
-            {
-                DataType = setDataType;
-                FileName = setFileName;
-            }
-        };
-
-        private static DataConvertAttribute[] DataConvertList = 
-        {
-            new DataConvertAttribute(typeof(EventData), "EventData"),
-        };
-
-        const string START_OF_TABLE = "#"; // 表示表格開始的識別字
-        const string END_OF_COLUMN = "EOF";// 表示為最後column（不包含此column）的識別字
-        const string END_OF_ROW = "EOF";   // 表示為最後row（不包含此row）的識別字
+        readonly static string JSON_DIRECTORY = "JSON";
+        static string fileListMessage = string.Empty;
+        static string debugMessage = string.Empty;
 
         static void Main(string[] args)
         {
-            string path = Directory.GetCurrentDirectory();
-            var xlsxFiles = Directory.EnumerateFiles(path, "*.xlsx");
-           
-            int fileCount = 0;
-            foreach (string curFileName in xlsxFiles) // foreach (DataConvertAttribute oneData in DataConvertList)
-            {
-                Console.WriteLine(string.Format("第 {0} file Name = {1}", ++fileCount, curFileName));
-                using (FileStream fs = File.Open(curFileName, FileMode.Open, FileAccess.Read))
-                {
-                    // 1. Reading from a OpenXml Excel file (2007 format; *.xlsx)
-                    // 下面會在結束時自動dispose
-                    using (Excel.ExcelOpenXmlReader excelReader = Excel.ExcelReaderFactory.CreateOpenXmlReader(fs) as Excel.ExcelOpenXmlReader) 
-                    {
-                        if (excelReader != null)
-                        {
-                            bool isStartTable = false; // 是否已經開始讀取表格
-                            int columnCount = 0; // column數
-                            List<string> allType = new List<string>();  // 所有欄位的type字串
-                            List<int> dontNeedColumn = new List<int>(); // 不需要的欄位
-                            // 2. Data Reader methods
-                            while (excelReader.Read())
-                            {
-                                if (!isStartTable && excelReader.GetString(0).Equals(START_OF_TABLE))
-                                {
-                                    isStartTable = true;
-                                }
-                                if (isStartTable)
-                                {
-                                    if (columnCount == 0) // 還不知道有幾個column
-                                    {
-                                        columnCount = 1;
-                                        while (!excelReader.GetString(columnCount).Equals(END_OF_COLUMN))
-                                        {
-                                            ++columnCount;
-                                        }
-                                    }
-                                    else // 已經知道Column數量
-                                    {
-                                        if (allType.Count == 0) // 還不知道各項目類型
-                                        {
-                                            for (int col = 1; col < columnCount; ++col)
-                                            {
-                                                allType.Add(excelReader.GetString(col));
-                                            }
-                                        }
-                                        else // 已經知道各項目類型
-                                        {
-                                            if (dontNeedColumn.Count == 0) //
-                                            {
-                                                for (int col = 1; col < columnCount; ++col)
-                                                {
-                                                    if (excelReader.GetString(col).Equals("N")) // TODO: 之後要改這段
-                                                    {
-                                                        dontNeedColumn.Add(col);
-                                                    }
-                                                }
-                                                // TODO：確認格式
-                                            }
-                                            else
-                                            {
-                                                //object data = Activator.CreateInstance(oneData.DataType);
+            //string path = Directory.GetCurrentDirectory();
+            //var xlsxFiles = Directory.EnumerateFiles(path, "*.xlsx");
 
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            TransferFilesFromExcelToJson();
+
+            Common.DebugMsg(debugMessage);
+            Common.DebugMsg(fileListMessage);
             Console.Write("按下Enter鈕結束。");
             Console.Read();
         }
+
+        static void TransferFilesFromExcelToJson()
+        {
+            string directoryPath = Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar + JSON_DIRECTORY;
+            if (!Directory.Exists(directoryPath)) // 如果資料夾不存在
+            {
+                Directory.CreateDirectory(directoryPath); // 建立目錄
+            }
+
+            TableToJsonString tableToJson = new TableToJsonString();
+            List<object> allData;
+            int successFileCount = 0;
+
+            foreach (DataConvertInfomation dci in GlobalConst.DataConvertList)
+            {
+                bool isSuccess = tableToJson.ReadExcelFile(dci, out allData, out debugMessage);
+                if (isSuccess)
+                {
+                    string dataJsonString = tableToJson.ObjectToJsonString(allData);
+                    #region JsonString To File
+                    string filePath = directoryPath + Path.DirectorySeparatorChar + dci.FileName + ".json";
+                    using (StreamWriter sw = new StreamWriter(filePath))
+                    {
+                        sw.Write(dataJsonString);
+                    }
+                    #endregion
+                    debugMessage = string.Format("{0}將 {1} 資料轉換成json成功\n", debugMessage, filePath);
+                    fileListMessage = string.Format("{0}{1}：O\n", fileListMessage, dci.FileName);
+                    ++successFileCount;
+                }
+                else
+                {
+                    debugMessage = string.Format("{0}取得{1}內資料失敗\n", debugMessage, dci.FileName);
+                    fileListMessage = string.Format("{0}{1}：X\n", fileListMessage, dci.FileName);
+                }
+            }
+            debugMessage = string.Format("{0}共轉換 {1}個檔案成功，{2}個檔案失敗\n", debugMessage, successFileCount, GlobalConst.DataConvertList.Length - successFileCount);
+        }
     }
-
-
 }

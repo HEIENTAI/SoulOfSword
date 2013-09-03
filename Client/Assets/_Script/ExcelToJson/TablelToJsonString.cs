@@ -6,37 +6,8 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-/// <summary>
-/// 此 scirpt 會被編譯為 pc standalone 版本執行檔
-/// 將Excel檔案轉換成json檔案的工具
-/// </summary>
-public class ExcelToJson : MonoBehaviour 
+public class TableToJsonString
 {
-    class DataConvertAttribute
-    {
-        public Type DataType
-        {
-            get;
-            protected set;
-        }
-        public string FileName
-        {
-            get;
-            protected set;
-        }
-
-        public DataConvertAttribute(Type setDataType, string setFileName)
-        {
-            DataType = setDataType;
-            FileName = setFileName;
-        }
-    }
-
-    private static DataConvertAttribute[] DataConvertList = 
-    {
-        new DataConvertAttribute(typeof(EventData), "EventData"),
-    };
-
     const string EXCEL_DIRECTORY = "EXCEL"; // excel檔案所在的資料夾
     const string JSON_DIRECTORY = "JSON";   // json檔案存放資料夾
     const string START_OF_TABLE = "#"; // 表示表格開始的識別字
@@ -52,79 +23,13 @@ public class ExcelToJson : MonoBehaviour
         {typeof(string), "STRING"},
     };
 
-    GUIStyle _uiStyle;
-    Rect _fileListWindowRect;
-    private Vector2 _windowScrollPosition;
-    string _windowMessage = string.Empty;
-
-    bool _currentlyTransfering = false; // 是否正在轉換中
+    string _debugMessage = string.Empty;
 
     // 讀取table用
     int _columnCount; // table的column數
     List<string> _allType; // table中所有欄位的type字串
     List<int> _dontNeedColumnIndexes; // table不需要的欄位Index
 
-    void Awake()
-    {
-        _uiStyle = new GUIStyle();
-        _uiStyle.fontSize = 14;
-        _uiStyle.normal.textColor = Color.yellow;
-        if (Camera.main != null)
-            Camera.main.backgroundColor = Color.black;
-    }
-
-
-	// Use this for initialization
-	void Start () 
-    {
-        _fileListWindowRect = new Rect(0, 70, Screen.width - 40, Screen.height - 70);
-
-	}
-	
-	// Update is called once per frame
-	void Update () 
-    {
-	}
-
-    void OnGUI()
-    {
-        if (!_currentlyTransfering)
-        {
-            try
-            {
-                if (GUI.Button(new Rect(100, 40, 100, 20), "Excel -> Json"))
-                {
-                    _currentlyTransfering = true;
-                    _windowMessage = "";
-                    TransferFilesFromExcelToJson();
-                }
-            }
-            catch (Exception e)
-            {
-                _currentlyTransfering = false;
-                _windowMessage = _windowMessage + e.StackTrace + "\n" + e.Message;
-            }
-        }
-
-        _fileListWindowRect = GUI.Window(0, _fileListWindowRect, TransferMessageWindow, "Debug Window");
-    }
-
-    void OnDestroy()
-    {
-        _allType = null;
-        _dontNeedColumnIndexes = null;
-    }
-
-    /// <summary>
-    /// 轉換訊息視窗
-    /// </summary>
-    public void TransferMessageWindow(int windowID)
-    {
-        _windowScrollPosition = GUILayout.BeginScrollView(_windowScrollPosition); // 加入捲軸
-        GUILayout.TextArea(_windowMessage, _uiStyle, GUILayout.ExpandHeight(true)); // 自動伸縮捲軸
-        GUILayout.EndScrollView();
-        GUI.DragWindow();
-    }
     /// <summary>
     /// 將讀取excel內table時會用到的變數初始化
     /// </summary>
@@ -136,64 +41,34 @@ public class ExcelToJson : MonoBehaviour
     }
 
     /// <summary>
-    /// 轉換檔案(Excel -> Json)
+    /// 將object資料轉成Json字串
     /// </summary>
-    void TransferFilesFromExcelToJson()
-    {
-        bool isSuccess;
-        List<object> allData;
-        int successFileCount = 0;
-        foreach (DataConvertAttribute oneData in DataConvertList)
-        {
-            InitTableVariable();
-            isSuccess = ReadOneExcelFile(oneData, out allData);
-            if (isSuccess)
-            {
-                WriteToJsonFile(allData, oneData.FileName);
-                ++successFileCount;
-            }
-            else
-            {
-                _windowMessage = string.Format("{0}取得{1}內資料失敗\n", oneData.FileName);
-            }
-        }
-        _windowMessage = string.Format("{0}共轉換 {1}個檔案成功，{2}個檔案失敗\n", _windowMessage, successFileCount, DataConvertList.Length - successFileCount);
-        _currentlyTransfering = false;
-    }
-
-    /// <summary>
-    /// 將ob資料寫成json檔
-    /// </summary>
-    void WriteToJsonFile(object ob, string fileName)
+    /// <param name="ob">待轉換的object</param>
+    /// <returns>對應的Json字串</returns>
+    public string ObjectToJsonString(object ob)
     {
         Newtonsoft.Json.JsonSerializerSettings settings = new Newtonsoft.Json.JsonSerializerSettings();
         settings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
         settings.CheckAdditionalContent = false;
-        string encodeToJson = Newtonsoft.Json.JsonConvert.SerializeObject(ob, settings);
-        string directoryPath = Application.dataPath + Path.DirectorySeparatorChar + JSON_DIRECTORY;
-
-        if (!Directory.Exists(directoryPath)) // 如果資料夾不存在
-        {
-            Directory.CreateDirectory(directoryPath); // 建立目錄
-        }
-        string filePath = directoryPath + Path.DirectorySeparatorChar + fileName + ".json";
-        using (StreamWriter sw = new StreamWriter(filePath))
-        {
-            sw.Write(encodeToJson);
-        }
-        _windowMessage = string.Format("{0}將 {1} 資料轉換成json成功\n", _windowMessage, filePath);
+        return Newtonsoft.Json.JsonConvert.SerializeObject(ob, settings);
     }
 
     /// <summary>
     /// 讀取一個excel檔案，讀到的資料存在allData，回傳是否成功
     /// </summary>
-    bool ReadOneExcelFile(DataConvertAttribute excelAndTypeData, out List<object> allData)
+    /// <param name="dci"></param>
+    /// <param name="allData">讀到轉換後的結果</param>
+    /// <param name="debugMessage">中間產生的針錯訊息</param>
+    /// <returns>是否成功</returns>
+    public bool ReadOneExcelFile(DataConvertInfomation dci, out List<object> allData, out string debugMessage)
     {
+        InitTableVariable();
         allData = new List<object>();
-        string filePath = Application.dataPath + Path.DirectorySeparatorChar + EXCEL_DIRECTORY + Path.DirectorySeparatorChar + excelAndTypeData.FileName + ".xlsx";
+        string filePath = Application.dataPath + Path.DirectorySeparatorChar + EXCEL_DIRECTORY + Path.DirectorySeparatorChar + dci.FileName + ".xlsx";
         if (!File.Exists(filePath))
         {
-            _windowMessage = string.Format("{0} {1}檔案不存在\n", _windowMessage, filePath);
+            _debugMessage = string.Format("{0} {1}檔案不存在\n", _debugMessage, filePath);
+            debugMessage = _debugMessage;
             return false;
         }
         using (FileStream fs = File.Open(filePath, FileMode.Open, FileAccess.Read))
@@ -206,20 +81,32 @@ public class ExcelToJson : MonoBehaviour
                 if (excelReader != null)
                 {
                     // 2. Data Reader methods
-                    _windowMessage = string.Format("{0}讀取 {1} 資料...\n", _windowMessage, excelAndTypeData.FileName);
+                    _debugMessage = string.Format("{0}讀取 {1} 資料...\n", _debugMessage, dci.FileName);
                     #region 確認此Excel是否有所需Table
                     bool hasContent = false;
+                    int line = 0;
                     while (excelReader.Read())
                     {
-                        if (!string.IsNullOrEmpty(excelReader.GetString(0)) && excelReader.GetString(0).Equals(START_OF_TABLE)) 
-                        { 
+                        ++line;
+                        
+                        if (!string.IsNullOrEmpty(excelReader.GetString(0)) && (excelReader.GetString(0)).Equals(START_OF_TABLE))
+                        {
                             hasContent = true;
                             break;
                         }
+                        else
+                        {
+                            _debugMessage = string.Format("{0}{1} 開頭為：{2}\n", _debugMessage, dci.FileName, excelReader.GetString(0));
+                            _debugMessage = string.Format("{0} Test :[1] = {1}\n", _debugMessage, excelReader.GetString(1));
+                        }
                     }
+                    _debugMessage = string.Format("{0}{1} 已經讀了 {2} 行\n", _debugMessage, dci.FileName, line);
+                    _debugMessage = string.Format("{0}{1}\n", _debugMessage, excelReader.ExceptionMessage);
+                    
                     if (!hasContent)
                     {
-                        _windowMessage = string.Format("{0}{1} 轉換失敗：找不到開始符號[{2}]\n", _windowMessage, excelAndTypeData.FileName, START_OF_TABLE);
+                        _debugMessage = string.Format("{0}{1} 轉換失敗：找不到開始符號[{2}]\n", _debugMessage, dci.FileName, START_OF_TABLE);
+                        debugMessage = _debugMessage;
                         return false;
                     }
                     #endregion
@@ -228,38 +115,42 @@ public class ExcelToJson : MonoBehaviour
                     {
                         if (CheckEndOfRow(excelReader))
                         {
-                            _windowMessage = string.Format("{0}{1} 轉換失敗：太早遇到列結尾符號[{2}]", _windowMessage, excelAndTypeData.FileName, END_OF_ROW);
+                            _debugMessage = string.Format("{0}{1} 轉換失敗：太早遇到列結尾符號[{2}]", _debugMessage, dci.FileName, END_OF_ROW);
+                            debugMessage = _debugMessage;
                             return false;
                         }
                         try
                         {
-                            while (!excelReader.GetString(_columnCount).Equals(END_OF_COLUMN.ToUpper())) 
+                            while (!excelReader.GetString(_columnCount).Equals(END_OF_COLUMN.ToUpper()))
                             {
-                                ++_columnCount; 
+                                ++_columnCount;
                             }
                         }
                         catch (Exception e)
                         {
                             _columnCount = 0;
-                            _windowMessage = string.Format("{0}{1} 轉換失敗：找不到行結尾符號[{2}]\n", _windowMessage, excelAndTypeData.FileName, END_OF_COLUMN);
-                            Common.DebugMsgFormat("{0} 內找不到行結尾符號 {1}", excelAndTypeData.FileName, END_OF_COLUMN);
+                            _debugMessage = string.Format("{0}{1} 轉換失敗：找不到行結尾符號[{2}]\n", _debugMessage, dci.FileName, END_OF_COLUMN);
+                            Common.DebugMsgFormat("{0} 內找不到行結尾符號 {1}", dci.FileName, END_OF_COLUMN);
                             Common.DebugMsgFormat("{0}\n{1}", e.Message, e.StackTrace);
-                            return false;    
+                            debugMessage = _debugMessage;
+                            return false;
                         }
                     }
                     if (_columnCount == 0)
                     {
-                        _windowMessage = string.Format("{0}{1} 轉換失敗：表格欄位數為0\n", _windowMessage, excelAndTypeData.FileName);
+                        _debugMessage = string.Format("{0}{1} 轉換失敗：表格欄位數為0\n", _debugMessage, dci.FileName);
+                        debugMessage = _debugMessage;
                         return false;
                     }
-                    Common.DebugMsg(string.Format("{0} 內的表格欄位數是{1}", excelAndTypeData.FileName, _columnCount));
+                    Common.DebugMsg(string.Format("{0} 內的表格欄位數是{1}", dci.FileName, _columnCount));
                     #endregion
                     #region 取得各欄位的類型
                     if (excelReader.Read())
                     {
                         if (CheckEndOfRow(excelReader))
                         {
-                            _windowMessage = string.Format("{0}{1} 轉換失敗：太早遇到列結尾符號[{2}]\n", _windowMessage, excelAndTypeData.FileName, END_OF_ROW);
+                            _debugMessage = string.Format("{0}{1} 轉換失敗：太早遇到列結尾符號[{2}]\n", _debugMessage, dci.FileName, END_OF_ROW);
+                            debugMessage = _debugMessage;
                             return false;
                         }
                         for (int col = 0; col < _columnCount; ++col)
@@ -269,7 +160,8 @@ public class ExcelToJson : MonoBehaviour
                     }
                     if (_allType.Count != _columnCount)
                     {
-                        _windowMessage = string.Format("{0}{1} 轉換失敗：欄位型別資料不足\n", _windowMessage, excelAndTypeData.FileName); 
+                        _debugMessage = string.Format("{0}{1} 轉換失敗：欄位型別資料不足\n", _debugMessage, dci.FileName);
+                        debugMessage = _debugMessage;
                         return false;
                     }
                     #endregion
@@ -278,7 +170,8 @@ public class ExcelToJson : MonoBehaviour
                     {
                         if (CheckEndOfRow(excelReader))
                         {
-                            _windowMessage = string.Format("{0}{1} 轉換失敗：太早遇到列結尾符號[{2}]\n", _windowMessage, excelAndTypeData.FileName, END_OF_ROW);
+                            _debugMessage = string.Format("{0}{1} 轉換失敗：太早遇到列結尾符號[{2}]\n", _debugMessage, dci.FileName, END_OF_ROW);
+                            debugMessage = _debugMessage;
                             return false;
                         }
                         for (int col = 0; col < _columnCount; ++col)
@@ -292,49 +185,49 @@ public class ExcelToJson : MonoBehaviour
                     }
                     else
                     {
-                        _windowMessage = string.Format("{0}{1} 轉換失敗：沒有指示各欄位是誰所需要\n", _windowMessage, excelAndTypeData.FileName);
+                        _debugMessage = string.Format("{0}{1} 轉換失敗：沒有指示各欄位是誰所需要\n", _debugMessage, dci.FileName);
+                        debugMessage = _debugMessage;
                         return false;
                     }
                     #endregion
                     #region 確認各欄位和要被寫入的物件欄位Type有對應
                     int currentColumnIndex = 0;
-                    bool isConform = CheckExcelAndObjectType(excelAndTypeData.DataType, ref currentColumnIndex);
+                    bool isConform = CheckExcelAndObjectType(dci.DataType, ref currentColumnIndex);
                     if (!isConform)
                     {
-                        _windowMessage = string.Format("{0}{1} 轉換失敗：表格與資料結構({2})內容不符\n", _windowMessage, excelAndTypeData.FileName, excelAndTypeData.DataType); 
+                        _debugMessage = string.Format("{0}{1} 轉換失敗：表格與資料結構({2})內容不符\n", _debugMessage, dci.FileName, dci.DataType);
+                        debugMessage = _debugMessage;
                         return false;
                     }
                     else
                     {
-                        _windowMessage = string.Format("{0}檔案({1})內的表格與資料結構({2})相符\n", _windowMessage, excelAndTypeData.FileName, excelAndTypeData.DataType);
+                        _debugMessage = string.Format("{0}檔案({1})內的表格與資料結構({2})相符\n", _debugMessage, dci.FileName, dci.DataType);
                     }
                     #endregion
                     #region 抓取資料
+                    bool hasEOR = false;
                     while (excelReader.Read())
                     {
                         if (CheckEndOfRow(excelReader))
                         {
+                            hasEOR = true;
                             break;
                         }
                         if (CheckEmptyRow(excelReader))
                         {
-                            _windowMessage = string.Format("{0}{1} 轉換失敗：表格有空行", _windowMessage, excelAndTypeData.FileName);
+                            _debugMessage = string.Format("{0}{1} 轉換失敗：表格有空行", _debugMessage, dci.FileName);
                             allData.Clear();
+                            debugMessage = _debugMessage;
                             return false;
                         }
                         currentColumnIndex = 0;
-                        allData.Add(GetObjectFromExcel(excelAndTypeData.DataType, excelReader, ref currentColumnIndex));
+                        allData.Add(GetObjectFromExcel(dci.DataType, excelReader, ref currentColumnIndex));
                     }
-                    if (!excelReader.Read())
+                    if (!hasEOR)
                     {
-                        _windowMessage = string.Format("{0}{1} 轉換失敗：找不到列結尾符號[{2}]\n", _windowMessage, excelAndTypeData.FileName, END_OF_ROW);
-                    }
-                    else
-                    {
-                        if (!CheckEndOfRow(excelReader))
-                        {
-                            _windowMessage = string.Format("{0}{1} 轉換失敗：找不到列結尾符號[{2}]\n", _windowMessage, excelAndTypeData.FileName, END_OF_ROW);
-                        }
+                        _debugMessage = string.Format("{0}{1} 轉換失敗：找不到列結尾符號[{2}]\n", _debugMessage, dci.FileName, END_OF_ROW);
+                        debugMessage = _debugMessage;
+                        return false;
                     }
                     #endregion
                     foreach (object data in allData)
@@ -342,10 +235,17 @@ public class ExcelToJson : MonoBehaviour
                         Common.DebugMsg(data.ToString());
                     }
                 }
+                else
+                {
+                    _debugMessage = string.Format("{0}{1}打開有問題\n", _debugMessage, dci.FileName);
+                    debugMessage = _debugMessage;
+                    return false;
+                }
             }
                 
             #endregion
         }
+        debugMessage = _debugMessage;
         return true;
     }
 
@@ -377,6 +277,7 @@ public class ExcelToJson : MonoBehaviour
     bool CheckEndOfRow(Excel.ExcelOpenXmlReader excelReader)
     {
         string firstRowString = excelReader.GetString(0);
+
         if (string.IsNullOrEmpty(firstRowString))
         {
             return false;
@@ -483,37 +384,13 @@ public class ExcelToJson : MonoBehaviour
             if (fieldInfos[fieldInfoIndex].FieldType.IsArray)
             {
                 Array array = fieldInfos[fieldInfoIndex].GetValue(returnObj) as Array;
-                curFieldType = fieldInfos[fieldInfoIndex].FieldType.GetElementType();
-
-                for (int elementCount = 0; elementCount < array.Length; ++elementCount)
+                GetArrayTypeFromExcel(fieldInfos[fieldInfoIndex].FieldType, excelReader, ref excelCurrentIndex, ref array);
+                if (array != null)
                 {
-                    string value = excelReader.GetString(excelCurrentIndex);
-                    if (!string.IsNullOrEmpty(value))
-                    {
-                        isNull = false;
-                    }
-
-                    object tempObj;
-                    if (curFieldType.IsClass && curFieldType != typeof(string))
-                    {
-                        tempObj = GetObjectFromExcel(curFieldType, excelReader, ref excelCurrentIndex);
-                    }
-                    else
-                    {
-                        bool isSuccess = GetBaseTypeFromExcel(curFieldType, value, out tempObj);
-                        if (isSuccess)
-                        {
-                            excelCurrentIndex = GetNextColumnIndex(excelCurrentIndex);
-                        }
-                        else
-                        {
-                            _windowMessage = string.Format("{0}{1} 欄位轉換失敗\n", _windowMessage, fieldInfos[fieldInfoIndex].Name);
-                        }
-                    }
-                    array.SetValue(tempObj, elementCount);
-
+                    isNull = false;
                 }
                 fieldInfos[fieldInfoIndex].SetValue(returnObj, array);
+                
             }
             else
             {
@@ -539,7 +416,7 @@ public class ExcelToJson : MonoBehaviour
                     }
                     else
                     {
-                        _windowMessage = string.Format("{0}{1} 欄位轉換失敗\n", _windowMessage, fieldInfos[fieldInfoIndex].Name);
+                        _debugMessage = string.Format("{0}{1} 欄位轉換失敗\n", _debugMessage, fieldInfos[fieldInfoIndex].Name);
                     }
                 }
                 fieldInfos[fieldInfoIndex].SetValue(returnObj, tempObj);
@@ -551,6 +428,66 @@ public class ExcelToJson : MonoBehaviour
         }
         return returnObj;
     }
+
+    bool GetArrayTypeFromExcel(Type dataType, Excel.ExcelOpenXmlReader excelReader, ref int excelCurrentIndex, ref Array returnArray)
+    {
+        bool success = true;
+        if (!dataType.IsArray)
+        {
+            _debugMessage = string.Format("{0} 轉檔錯誤：非陣列的類型({1})想解成陣列\n", _debugMessage, dataType.Name);
+            return false;
+        }
+
+        Type elementType = dataType.GetElementType();
+        bool isNull = true;
+        for (int elementCount = 0; elementCount < returnArray.Length; ++elementCount)
+        {
+            if (elementType.IsArray)
+            {
+                Array array = dataType.GetFields()[0].GetValue(returnArray) as Array;
+                success = GetArrayTypeFromExcel(elementType, excelReader, ref excelCurrentIndex, ref array);
+                if (array != null)
+                {
+                    isNull = false;
+                }
+                returnArray.SetValue(array, elementCount);
+            }
+            else if (elementType.IsClass && elementType != typeof(string))
+            {
+                object tempObj = GetObjectFromExcel(elementType, excelReader, ref excelCurrentIndex);
+                returnArray.SetValue(tempObj, elementCount);
+                if (tempObj != null)
+                {
+                    isNull = false;
+                }
+            }
+            else
+            {
+                object tempObj;
+                success = GetBaseTypeFromExcel(elementType, excelReader.GetString(excelCurrentIndex), out tempObj);
+                if (success)
+                {
+                    excelCurrentIndex = GetNextColumnIndex(excelCurrentIndex);
+                    returnArray.SetValue(tempObj, elementCount);
+                    if (tempObj != null)
+                    {
+                        isNull = false;
+                    }
+                }
+                else
+                {
+                    _debugMessage = string.Format("{0}{1} 欄位轉換失敗\n", _debugMessage, dataType.GetFields()[0].Name);
+                    return false;
+                }
+            }
+        }
+        if (isNull)
+        {
+            returnArray = null;
+        }
+        return true;
+    }
+
 
     bool GetBaseTypeFromExcel(Type dataType, string excelStr, out object getData)
     {
@@ -586,4 +523,5 @@ public class ExcelToJson : MonoBehaviour
             }
         }
     }
+
 }

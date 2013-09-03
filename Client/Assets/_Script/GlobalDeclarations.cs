@@ -18,6 +18,29 @@ public class Test
 }
 
 /// <summary>
+/// 描述資料轉換用的資訊用的class，描述資料結構和檔名之間的對應
+/// </summary>
+public class DataConvertInfomation
+{
+    public System.Type DataType
+    {
+        get;
+        protected set;
+    }
+    public string FileName
+    {
+        get;
+        protected set;
+    }
+
+    public DataConvertInfomation(System.Type setDataType, string setFileName)
+    {
+        DataType = setDataType;
+        FileName = setFileName;
+    }
+}
+
+/// <summary>
 /// 事件檢查條件資料
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
@@ -37,7 +60,7 @@ public class EventConditionData
 public class EventEffectData
 {
     public ushort? EffectType; // 效果類型
-    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
+    //[MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
     public ushort?[] EffectParameter = new ushort?[3]; // 效果參數
     public override string ToString()
     {
@@ -60,11 +83,11 @@ public class EventData
     public uint? testUINT;
     public ushort? EventMainID;                 // 事件ID
     public ushort? EventSubID;                  // 子事件ID
-    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
+    //[MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
     public EventConditionData[] EventCheckCondition = new EventConditionData[3]; // 事件檢查條件
-    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
+    //[MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
     public EventEffectData[] TrueEffect = new EventEffectData[3];                // 正效果
-    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
+    //[MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
     public EventEffectData[] FalseEffect = new EventEffectData[3];               // 反效果
 
     public override string ToString()
