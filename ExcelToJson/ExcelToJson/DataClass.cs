@@ -62,19 +62,26 @@ namespace ExcelToJson
         public ushort? CheckType; // 檢查類型
         public ushort? CheckCondition1; // 檢查條件1
         public ushort? CheckCondition2; // 檢查條件2
-
+        /// <summary>
+        /// 描述此class內容的字串
+        /// </summary>
         public override string ToString()
         {
             return string.Format("CheckType = {0} CheckCondition1 = {1} CheckCondition2 = {2}\n", CheckType, CheckCondition1, CheckCondition2);
         }
     }
-
+    /// <summary>
+    /// 事件效果資料
+    /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     public class EventEffectData
     {
         public ushort? EffectType; // 效果類型
         //[MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
         public ushort?[] EffectParameter = new ushort?[3]; // 效果參數
+        /// <summary>
+        /// 描述此class內容的字串
+        /// </summary>
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
@@ -102,7 +109,9 @@ namespace ExcelToJson
         public EventEffectData[] TrueEffect = new EventEffectData[3];                // 正效果
         //[MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
         public EventEffectData[] FalseEffect = new EventEffectData[3];               // 反效果
-
+        /// <summary>
+        /// 描述此class內容的字串
+        /// </summary>
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();

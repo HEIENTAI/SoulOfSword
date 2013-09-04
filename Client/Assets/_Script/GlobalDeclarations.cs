@@ -4,19 +4,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
-
-[StructLayout(LayoutKind.Sequential)]
-public class Test
-{
-    public int? testInt;
-    public byte? testByte;
-
-    public override string ToString()
-    {
-        return string.Format("testInt = null ? {0} testInt = {1} testByte = null ? {2} testByte = {3}", testInt == null, testInt, testByte == null, testByte);
-    }
-}
-
 /// <summary>
 /// 描述資料轉換用的資訊用的class，描述資料結構和檔名之間的對應
 /// </summary>
@@ -68,7 +55,7 @@ public class EventEffectData
         sb.AppendFormat("EffectType = {0}\n============\n", EffectType);
         for (int i = 0; i < EffectParameter.Length; ++i)
         {
-            sb.AppendFormat("EffectParameter[{0}] = {1}\n", i, EffectParameter[i]);
+            sb.AppendFormat("EffectParameter[{0}] = {1}\n", i,  EffectParameter[i]);
         }
         return sb.ToString();
     }

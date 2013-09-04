@@ -11,6 +11,8 @@ namespace ExcelToJson
     class Program
     {
         readonly static string JSON_DIRECTORY = "JSON";
+        readonly static string EXCEL_DIRECTORY = "EXCEL"; // excel檔案所在的資料夾
+        readonly static string JSON_EXT = ".json";       // json檔案副檔名
         static string fileListMessage = string.Empty;
         static string debugMessage = string.Empty;
 
@@ -29,24 +31,24 @@ namespace ExcelToJson
 
         static void TransferFilesFromExcelToJson()
         {
-            string directoryPath = Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar + JSON_DIRECTORY;
-            if (!Directory.Exists(directoryPath)) // 如果資料夾不存在
+            string exceDirectorylPath = Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar + EXCEL_DIRECTORY;
+            string jsonDirectoryPath = Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar + JSON_DIRECTORY;
+            if (!Directory.Exists(jsonDirectoryPath)) // 如果資料夾不存在
             {
-                Directory.CreateDirectory(directoryPath); // 建立目錄
+                Directory.CreateDirectory(jsonDirectoryPath); // 建立目錄
             }
 
-            TableToJsonString tableToJson = new TableToJsonString();
-            List<object> allData;
+            ExcelToJsonString tableToJson = new ExcelToJsonString();
             int successFileCount = 0;
 
             foreach (DataConvertInfomation dci in GlobalConst.DataConvertList)
             {
-                bool isSuccess = tableToJson.ReadExcelFile(dci, out allData, out debugMessage);
-                if (isSuccess)
+                string dataJsonString;
+                ReadExcelToJsonStringError error = tableToJson.ReadExcelFile(exceDirectorylPath, dci, NeedReadSite.CLIENT, out dataJsonString, out debugMessage);
+                if (error == ReadExcelToJsonStringError.NONE)
                 {
-                    string dataJsonString = tableToJson.ObjectToJsonString(allData);
                     #region JsonString To File
-                    string filePath = directoryPath + Path.DirectorySeparatorChar + dci.FileName + ".json";
+                    string filePath = jsonDirectoryPath + Path.DirectorySeparatorChar + dci.FileName + JSON_EXT;
                     using (StreamWriter sw = new StreamWriter(filePath))
                     {
                         sw.Write(dataJsonString);
