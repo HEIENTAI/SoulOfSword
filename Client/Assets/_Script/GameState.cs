@@ -90,6 +90,7 @@ public class GameEntered : IGameState
 
     void IGameState.OnChangeIn(SceneManager sceneManager)
     {
+        GameMain.Instance.DataTableManager.Load();
         sceneManager.ChangeScene(1);
     }
 

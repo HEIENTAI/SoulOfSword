@@ -28,6 +28,12 @@ public class GameMain : MonoBehaviour
     /// 遊戲狀態
     /// </summary>
     private IGameState _gameState;
+
+    private DataTableManager _dataTableManager;
+    public DataTableManager DataTableManager
+    {
+        get {return _dataTableManager; }
+    }
     private SceneManager _sceneManager;
     public SceneManager SceneManager
     {
@@ -63,6 +69,7 @@ public class GameMain : MonoBehaviour
     void Start()
     {
         _gameState = GameNone.Instance;
+        _dataTableManager = new DataTableManager();
         _sceneManager = new SceneManager();
         _playerInput = PlayerInput.Instance;
         _cameraManager = new CameraManager();
@@ -82,6 +89,7 @@ public class GameMain : MonoBehaviour
     void OnDestroy()
     {
         _gameState = null;
+        _dataTableManager = null;
         _sceneManager = null;
         _playerInput = null;
         _cameraManager = null;

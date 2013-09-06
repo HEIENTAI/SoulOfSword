@@ -1,7 +1,21 @@
 ﻿using System;
 using System.IO;
+using System.Collections;
 using System.Collections.Generic;
-using Excel;
+//using System.Linq;
+
+//using NPOI;
+using NPOI.SS.UserModel;
+//using NPOI.XSSF;
+//using NPOI.HPSF;
+//using NPOI.HSSF;
+//using NPOI.HSSF.UserModel;
+//using NPOI.POIFS;
+//using NPOI.Util;
+//using NPOI.HSSF.Util;
+//using NPOI.HSSF.Extractor;
+
+
 
 namespace ExcelToJson
 {
@@ -60,25 +74,27 @@ namespace ExcelToJson
         readonly string NEED_READ_SITE_IS_CLIENT = "C"; // 「只有Client需要讀」的欄位識別字
         readonly string NEED_READ_SITE_IS_NONE = "N";   // 「都不需要讀」的欄位識別字
 
-        ExcelOpenXmlReader _excelReader = null;
+
+        ISheet _sheet = null;
+        int _currentSheetRowNum;
+
 
         int _columnCount;
         List<int> _dontNeedColumnIndexes; // table不需要的欄位Index
 
         public ExcelToTable()
         {
+            _currentSheetRowNum = -1;
+
             _columnCount = 0;
             _dontNeedColumnIndexes = new List<int>();
         }
 
         ~ExcelToTable()
         {
+            _sheet = null;
+
             _dontNeedColumnIndexes = null;
-            if (_excelReader != null)
-            {
-                _excelReader.Close(); // Free Resources
-                _excelReader = null;
-            }
         }
 
         #region 確認table header正確性
@@ -89,55 +105,43 @@ namespace ExcelToJson
         public ReadExcelToJsonStringError CheckAndReadTableHeader(NeedReadSite nrs, out List<string> allType)
         {
             allType = null;
-            if (!HasTable()) { return ReadExcelToJsonStringError.CANT_FIND_START_TOKEN; }
-            ReadExcelToJsonStringError ree = GetTableColumnCount();
+            ReadExcelToJsonStringError ree = CheckTableStartAndCountTableColumn();
             if (ree != ReadExcelToJsonStringError.NONE) { return ree; }
             ree = GetTableAllColumnType(out allType);
             if (ree != ReadExcelToJsonStringError.NONE) { return ree; }
             ree = GetTableIgnoreColumn(nrs);
             if (ree != ReadExcelToJsonStringError.NONE) { return ree; }
-            // 由於先讀type，再讀忽略欄位index，所以得再此才能依據忽略的欄位index調整allType
-            _dontNeedColumnIndexes.Sort();
-            for (int index = _dontNeedColumnIndexes.Count - 1; index >= 0; --index) // 由大往小刪除，避免刪錯
-            { 
-                allType.RemoveAt(_dontNeedColumnIndexes[index]); 
-            }
+            DeleteIgnoreCol(ref allType);
             return ReadExcelToJsonStringError.NONE;
         }
 
         /// <summary>
-        /// 確認此Excel是否有所需Table，
-        /// </summary>
-        bool HasTable()
-        {
-            bool hasContent = false;
-            while (!hasContent) // 如果沒找到content則要一直尋找
-            {
-                List<string> getData = GetNextRow();
-                if (getData == null) { break; } // 表示已經讀到excel檔案結尾依舊沒東西 or 根本沒讀取file
-                if (!string.IsNullOrEmpty(getData[0]) && getData[0].Equals(START_OF_TABLE)) { hasContent = true; }
-            }
-            return hasContent;
-        }
-
-        /// <summary>
-        /// 取得excel中table的column數，結果存在_columnCount
+        /// 確認table開始符號存在&計算table的column數
         /// </summary>
         /// <returns>可能有的錯誤訊息</returns>
-        ReadExcelToJsonStringError GetTableColumnCount()
+        ReadExcelToJsonStringError CheckTableStartAndCountTableColumn()
         {
-            List<string> countColumnData = GetNextRow();
-            if (countColumnData == null || countColumnData.Count == 0) { return ReadExcelToJsonStringError.TABEL_COL_NUM_IS_ZERO; } // 沒有計算到欄位數
-            if (CheckEndOfTable(countColumnData)) { return ReadExcelToJsonStringError.END_OF_ROW_TOKEN_TO_EARLY; } // 太早遇到END_OF_ROW
-            for (_columnCount = 0; _columnCount < countColumnData.Count; ++_columnCount)
+            bool hasContent = false;
+            while (!hasContent) // 如果沒找到Content則要一直尋找
             {
-                if (!string.IsNullOrEmpty(countColumnData[_columnCount]) && countColumnData[_columnCount].Equals(END_OF_COLUMN)) { break; } // 遇到END_OF_COLUMN跳離，此時_columnCount即欄位數
+                List<string> getData = GetNextRow();
+                if (getData == null) { return ReadExcelToJsonStringError.CANT_FIND_START_TOKEN; } // 表示已經讀到檔案結尾依舊沒東西or沒讀取檔案
+                // 如果是空行會回傳空的list
+                if (getData.Count > 0 && !string.IsNullOrEmpty(getData[0]) && getData[0].Equals(START_OF_TABLE)) 
+                {
+                    // [0] = "#" 所以從第一個開始檢查
+                    for (_columnCount = 1; _columnCount < getData.Count; ++_columnCount)
+                    {
+                        if (!string.IsNullOrEmpty(getData[_columnCount]) && getData[_columnCount].Equals(END_OF_COLUMN)) { break; } // 遇到END_OF_COLUMN跳離，此時_columnCount即欄位數
+                    }
+                    if (_columnCount == getData.Count) // 表示中途都未跳離
+                    {
+                        _columnCount = 0; // 將column數量重設回0
+                        return ReadExcelToJsonStringError.CANT_FIND_END_OF_COL_TOKEN; 
+                    }
+                    hasContent = true;
+                }
             }
-            if (_columnCount == countColumnData.Count) // 表示中途都未跳離 
-            {
-                _columnCount = 0; // 將column數量重設回0
-                return ReadExcelToJsonStringError.CANT_FIND_END_OF_COL_TOKEN; 
-            } 
             return ReadExcelToJsonStringError.NONE;
         }
 
@@ -188,24 +192,23 @@ namespace ExcelToJson
             return !string.IsNullOrEmpty(rowData[0]) && rowData[0].Equals(END_OF_ROW);
         }
         #endregion
-        #region 開關檔、讀一行資料
+        #region 開關檔、讀一行資料、刪除不需要資料
         /// <summary>
         /// 開啟一excel檔案，開啟成功（回傳值為ReadExcelError.NONE）則_excelReader可讀取資料
         /// </summary>
-        /// <param name="fileName"></param>
-        /// <returns></returns>
+        /// <param name="directoryPath">資料夾路徑</param>
+        /// <param name="fileName">該資料夾下的檔案名稱</param>
+        /// <returns>可能有的錯誤訊息</returns>
         public ReadExcelToJsonStringError OpenExcelFile(string directoryPath, string fileName)
         {
-            string filePath =  directoryPath + Path.DirectorySeparatorChar + fileName + EXCEL_EXT;
+            string filePath = directoryPath + Path.DirectorySeparatorChar + fileName + EXCEL_EXT;
             if (!File.Exists(filePath)) { return ReadExcelToJsonStringError.FILE_NOT_EXIST; }
 
             try
             {
-                using (FileStream fs = File.Open(filePath, FileMode.Open, FileAccess.Read))
-                {
-                    _excelReader = ExcelReaderFactory.CreateOpenXmlReader(fs) as ExcelOpenXmlReader;
-                    if (_excelReader == null) { return ReadExcelToJsonStringError.FILE_OPEN_ERROR; }
-                }
+                IWorkbook workBook = WorkbookFactory.Create(filePath);
+                _sheet = workBook.GetSheetAt(0);
+                workBook = null;
             }
             catch { return ReadExcelToJsonStringError.FILE_OPEN_ERROR; }
             return ReadExcelToJsonStringError.NONE;
@@ -216,13 +219,11 @@ namespace ExcelToJson
         /// </summary>
         public void Close()
         {
+            _currentSheetRowNum = -1;
+            _sheet = null;
+            
             _columnCount = 0;
             _dontNeedColumnIndexes.Clear();
-            if (_excelReader != null)
-            {
-                _excelReader.Close();
-                _excelReader = null;
-            }
         }
 
         /// <summary>
@@ -230,22 +231,39 @@ namespace ExcelToJson
         /// </summary>
         public List<string> GetNextRow()
         {
-            if (_excelReader == null) { return null; }
-            if (!_excelReader.Read()) { return null; }
+            if (_sheet == null) { return null; }
+
+            if (_currentSheetRowNum < _sheet.LastRowNum) { ++_currentSheetRowNum; }
+            else { return null; }
 
             List<string> retStrList = new List<string>();
-            
-            int colCount = 0;
-            int readColumnCount = (_columnCount == 0) ? int.MaxValue : _columnCount; // 如果_columnCount有值，取其值，否則取最大值
-            try
+
+            IRow currentRow = _sheet.GetRow(_currentSheetRowNum);
+            // 讀到空行currentRow會是null
+            if (currentRow == null) { return retStrList;}
+
+            int realColumnCount = (_columnCount == 0) ? currentRow.LastCellNum : _columnCount;
+
+            for (int colCount = 0; colCount < realColumnCount; ++colCount)
             {
-                for (colCount = 0; colCount < readColumnCount; ++colCount)
-                {
-                    if (!_dontNeedColumnIndexes.Contains(colCount)) { retStrList.Add(_excelReader.GetString(colCount)); } // 如果有在忽略列，就不管
-                }
+                if (!_dontNeedColumnIndexes.Contains(colCount)) { retStrList.Add((currentRow.GetCell(colCount) == null) ? null : currentRow.GetCell(colCount).ToString()); }
             }
-            catch (Exception e) { Common.DebugMsgFormat("colCount = {0} retStrList.Count = {1} error = {2}\n", colCount, retStrList.Count, e.Message); }
+
             return retStrList;
+        }
+
+        /// <summary>
+        /// 刪除忽略資料
+        /// </summary>
+        /// <param name="waitDeleteData">準備要被刪除的資料</param>
+        void DeleteIgnoreCol(ref List<string> waitDeleteData)
+        {
+            // 由於先讀type，再讀忽略欄位index，所以得再此才能依據忽略的欄位index調整allType
+            _dontNeedColumnIndexes.Sort();
+            for (int index = _dontNeedColumnIndexes.Count - 1; index >= 0; --index) // 由大往小刪除，避免刪錯
+            {
+                waitDeleteData.RemoveAt(_dontNeedColumnIndexes[index]);
+            }
         }
         #endregion
     }

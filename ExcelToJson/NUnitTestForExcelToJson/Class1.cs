@@ -91,26 +91,14 @@ namespace NUnitTestForExcelToJson
             Assert.AreEqual(ReadExcelToJsonStringError.NONE, ree);
             List<string> ans = new List<string>()
             {
-                "#", null, null, null, null,
+                "#",  null, null, null, null,
                 null, null, null, null, null,
                 null, null, null, null, null,
                 null, null, null, null, null,
                 null, null, null, null, null,
                 null, null, null, null, null,
                 null, null, null, null, null,
-                null, null, null, null, null
-            };
-            Assert.AreEqual(ans, ett.GetNextRow());
-            ans = new List<string>()
-            {
-                "TestStr", "TstByte", "TestUINT", "testnon",  "事件ID",
-                "子事件ID","檢查1類型","檢查1條件1","檢查1條件2","檢查2類型",
-                "檢查2條件1","檢查2條件2","檢查3類型","檢查3條件1","檢查3條件2",
-                "正效果1類型","正效果1欄位1","正效果1欄位2","正效果1欄位3","正效果2類型",
-                "正效果2欄位1","正效果2欄位2","正效果2欄位3","正效果3類型","正效果3欄位1",
-                "正效果3欄位2","正效果3欄位3","反效果1類型","反效果1欄位1","反效果1欄位2",
-                "反效果1欄位3","反效果2類型","反效果2欄位1","反效果2欄位2","反效果2欄位3",
-                "反效果3類型","反效果3欄位1","反效果3欄位2","反效果3欄位3","EOC"
+                null, null, null, null, "EOC"
             };
             Assert.AreEqual(ans, ett.GetNextRow());
         }
@@ -176,7 +164,7 @@ namespace NUnitTestForExcelToJson
             ReadExcelToJsonStringError ree = ett.OpenExcelFile(exceDirectorylPath, "EventData_TABEL_COL_NUM_IS_ZERO");
             Assert.AreEqual(ReadExcelToJsonStringError.NONE, ree);
             ree = ett.CheckAndReadTableHeader(NeedReadSite.CLIENT, out allType);
-            Assert.AreEqual(ReadExcelToJsonStringError.TABEL_COL_NUM_IS_ZERO, ree);
+            Assert.AreEqual(ReadExcelToJsonStringError.CANT_FIND_END_OF_COL_TOKEN, ree);
         }
 
         [Test]
@@ -186,9 +174,18 @@ namespace NUnitTestForExcelToJson
             ReadExcelToJsonStringError ree = ett.OpenExcelFile(exceDirectorylPath, "EventData_TABEL_END_OF_ROW_IS_EARLY_IN_COLUMN_COUNT");
             Assert.AreEqual(ReadExcelToJsonStringError.NONE, ree);
             ree = ett.CheckAndReadTableHeader(NeedReadSite.CLIENT, out allType);
-            Assert.AreEqual(ReadExcelToJsonStringError.END_OF_ROW_TOKEN_TO_EARLY, ree);
+            Assert.AreEqual(ReadExcelToJsonStringError.CANT_FIND_END_OF_COL_TOKEN, ree);
         }
 
+        [Test]
+        [Category("Test Read Excel File")]
+        public void TestReadStartTokenNotFirstRow()
+        {
+            ReadExcelToJsonStringError ree = ett.OpenExcelFile(exceDirectorylPath, "EventData_StartTokenNotFirstRow");
+            Assert.AreEqual(ReadExcelToJsonStringError.NONE, ree);
+            ree = ett.CheckAndReadTableHeader(NeedReadSite.CLIENT, out allType);
+            Assert.AreEqual(ReadExcelToJsonStringError.NONE, ree);
+        }
     }
 
     [TestFixture]
@@ -207,6 +204,18 @@ namespace NUnitTestForExcelToJson
         public void TearDown()
         {
             _excelToJsonString = null;
+        }
+
+        [Test]
+        [Category("Test Read Excel File And Transfer Data")]
+        public void TestReadStartTokenNotFirstRowTableToJsonString()
+        {
+            string jsonString = string.Empty;
+            string debugString = string.Empty;
+            Console.WriteLine(string.Format("path = {0}", exceDirectorylPath));
+            DataConvertInfomation dci = new DataConvertInfomation(typeof(EventData), "EventData_StartTokenNotFirstRow");
+            ReadExcelToJsonStringError error = _excelToJsonString.ReadExcelFile(exceDirectorylPath, dci, NeedReadSite.CLIENT, out jsonString, out debugString);
+            Assert.AreEqual(ReadExcelToJsonStringError.NONE, error);
         }
 
         [Test]

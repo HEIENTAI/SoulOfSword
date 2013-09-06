@@ -122,7 +122,8 @@ public class StandaloneForExcelToJson : MonoBehaviour
             }
             else
             {
-                _debugMessage = string.Format("{0}取得{1}內資料(型別為{2})失敗：失敗原因：{3}\n", _debugMessage, dci.FileName, dci.DataType, error);
+                string excelFilePath = excelDirectoryPath + Path.DirectorySeparatorChar + dci.FileName + ".xlsx";
+                _debugMessage = string.Format("{0}取得{1}內資料(型別為{2})失敗：失敗原因：{3}\n", _debugMessage, excelFilePath, dci.DataType, error);
                 _fileListMessage = string.Format("{0}{1}：X\n", _fileListMessage, dci.FileName);
             }
             _debugMessage = string.Format("{0}共轉換 {1}個檔案成功，{2}個檔案失敗\n", _debugMessage, successFileCount, GlobalConst.DataConvertList.Length - successFileCount);

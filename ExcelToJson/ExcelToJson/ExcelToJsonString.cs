@@ -150,14 +150,19 @@ namespace ExcelToJson
             for (int fiIndex = 0; fiIndex < allFieldInfo.Length; ++fiIndex)
             {
                 Type curType = allFieldInfo[fiIndex].FieldType;
+                Common.DebugMsgFormat("curType is {0} checkObject = {1} d = {2}", curType, checkObject, allFieldInfo[fiIndex].GetValue(checkObject));
+                // 避免curObj為Null，否則可能會讓後面method取不到資訊(string為例外狀況)
+
                 object curObj = allFieldInfo[fiIndex].GetValue(checkObject);
+                if (curType != typeof(string) && curObj == null) { curObj = Activator.CreateInstance(curType); }
+
                 if (curType.IsArray)
                 {
                     isConform = CheckArrayTypeCorrect(curType, curObj, ref tableTypeEnumerator);
                 }
                 else if (curType.IsClass && curType != typeof(string))
                 {
-                    isConform = CheckArrayTypeCorrect(curType, curObj, ref tableTypeEnumerator);
+                    isConform = CheckObjectTypeCorrect(curType, curObj, ref tableTypeEnumerator);
                 }
                 else
                 {
@@ -165,7 +170,7 @@ namespace ExcelToJson
                 }
                 if (!isConform) 
                 {
-                    Common.DebugMsgFormat("type = {0} excelType = {1}", checkType, tableTypeEnumerator.Current);
+                    Common.DebugMsgFormat("type = {0} excelType = {1} 不合", checkType, tableTypeEnumerator.Current);
                     return false; 
                 }
             }
@@ -189,8 +194,9 @@ namespace ExcelToJson
             bool isConform = true;;
             for (int elementCount = 0; elementCount < checkArray.Length; ++elementCount)
             {
-                // 避免element為Null，否則可能會讓後面method取不到資訊
-                object elementObject = checkArray.GetValue(elementCount) ?? Activator.CreateInstance(elementType);
+                // 避免element為Null，否則可能會讓後面method取不到資訊(string為例外狀況)
+                object elementObject = checkArray.GetValue(elementCount);
+                if (elementObject != typeof(string) && elementObject == null) { elementObject = Activator.CreateInstance(elementType); }
 
                 if (elementType.IsArray)
                 {
@@ -206,7 +212,7 @@ namespace ExcelToJson
                 }
                 if (!isConform) 
                 {
-                    Common.DebugMsgFormat("type = {0} excelType = {1}", checkType, tableTypeEnumerator.Current);
+                    Common.DebugMsgFormat("type = {0} excelType = {1} 不合", checkType, tableTypeEnumerator.Current);
                     return false; 
                 }
             }
@@ -279,8 +285,10 @@ namespace ExcelToJson
             for (int fiIndex = 0; fiIndex < allFieldInfo.Length; ++fiIndex)
             {
                 Type curFieldType = allFieldInfo[fiIndex].FieldType;
+                // 避免curFieldObj為Null，否則可能會讓後面method取不到資訊(string為例外狀況)
                 object curFieldObj = allFieldInfo[fiIndex].GetValue(retObj);
-                
+                if (curFieldType != typeof(string) && curFieldObj == null) { curFieldObj = Activator.CreateInstance(curFieldType); }
+
                 if (curFieldType.IsArray)
                 {
                     error = GetArrayTypeDataFromExcel(curFieldType, ref curFieldObj, ref rowDataEnumerator);
@@ -327,8 +335,9 @@ namespace ExcelToJson
             Type elementType = type.GetElementType();
             for (int elementCount = 0; elementCount < retArray.Length; ++elementCount)
             {
-                // 避免element為Null，否則可能會讓後面method取不到資訊
-                object elementObj = retArray.GetValue(elementCount) ?? Activator.CreateInstance(elementType);
+                // 避免element為Null，否則可能會讓後面method取不到資訊(string為例外狀況)
+                object elementObj = retArray.GetValue(elementCount);
+                if (elementObj != typeof(string) && elementObj == null) { elementObj = Activator.CreateInstance(elementType); }
 
                 if (elementType.IsArray)
                 {

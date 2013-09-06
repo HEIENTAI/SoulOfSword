@@ -1,4 +1,6 @@
-﻿using System;
+﻿using UnityEngine;
+using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,4 +16,9 @@ public class DataTableManager
     //    Common.DebugMsgFormat("decode後的結果：\n{0}", one);
     //}
 
+
+    public void Load()
+    {
+        Common.DebugMsgFormat("resourcepath = {0}", Application.dataPath);
+    }
 }
