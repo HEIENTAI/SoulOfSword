@@ -107,6 +107,7 @@ public class StandaloneForExcelToJson : MonoBehaviour
             Directory.CreateDirectory(jsonDirectoryPath); // 建立目錄
         }
         int successFileCount = 0;
+
         foreach (DataConvertInfomation dci in GlobalConst.DataConvertList)
         {
             string dataJsonString;

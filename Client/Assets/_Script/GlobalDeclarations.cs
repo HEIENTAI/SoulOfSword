@@ -5,6 +5,14 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 /// <summary>
+/// 開始就需要的資源要實作
+/// </summary>
+public interface IStartDependency
+{
+    bool IsStartDataReady { get; }
+}
+
+/// <summary>
 /// 描述資料轉換用的資訊用的class，描述資料結構和檔名之間的對應
 /// </summary>
 public class DataConvertInfomation
@@ -26,6 +34,9 @@ public class DataConvertInfomation
         FileName = setFileName;
     }
 }
+
+
+
 
 /// <summary>
 /// 事件檢查條件資料

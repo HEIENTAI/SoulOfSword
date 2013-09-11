@@ -8,7 +8,7 @@
 ///
 public interface IGameState
 {
-    void OnChangeIn(SceneManager sceneManager); // 
+    void OnChangeIn(); // 
     void Update();
 }
 /// <summary>
@@ -44,7 +44,7 @@ public class GameNone : IGameState
         return "無";
     }
 
-    void IGameState.OnChangeIn(SceneManager sceneManager)
+    void IGameState.OnChangeIn()
     {
         
     }
@@ -54,6 +54,8 @@ public class GameNone : IGameState
         GameMain.Instance.ChangeGameState(GameEntered.Instance);
     }
 }
+
+
 
 /// <summary>
 /// 在遊戲中
@@ -73,6 +75,8 @@ public class GameEntered : IGameState
         }
     }
     #endregion
+
+    bool isStartDataLoadDone = false;
     GameEntered()
     {
         ;
@@ -88,15 +92,23 @@ public class GameEntered : IGameState
         return "遊戲中狀態";
     }
 
-    void IGameState.OnChangeIn(SceneManager sceneManager)
+    void IGameState.OnChangeIn()
     {
-        GameMain.Instance.DataTableManager.Load();
-        sceneManager.ChangeScene(1);
+        GameMain.Instance.DataTableManager.LoadAllTable();
     }
 
     void IGameState.Update()
     {
         //throw new System.NotImplementedException();
-
+        if (!isStartDataLoadDone)
+        {
+            Common.DebugMsg("Update (Start data not load done)");
+            if (GameMain.Instance.StartDataReady) 
+            {
+                Common.DebugMsg("Update (Start data done)");
+                GameMain.Instance.SceneManager.ChangeScene(1);
+                isStartDataLoadDone = true;
+            }
+        }
     }
 }
