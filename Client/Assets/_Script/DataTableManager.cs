@@ -25,17 +25,20 @@ public class DataTableManager :IStartDependency
 {
     public ReadDataState[] DataState;
 
-    // 先宣告成list，再看怎麼處理(可能改arraylist裝list)
     #region 表格資料宣告區
-    // 事件資料表
-    private List<EventData> _eventDataList = new List<EventData>();
-    
+    private Dictionary<GlobalConst.DataLoadTag, IList> _allDataList = new Dictionary<GlobalConst.DataLoadTag, IList>()
+    {
+        {GlobalConst.DataLoadTag.Event, new List<GameEventData>()}, // 事件資料表
+        {GlobalConst.DataLoadTag.Plant, new List<PlantData>()},     // 種植檔資料表
+        {GlobalConst.DataLoadTag.Scene, new List<SceneData>()},     // 場景資料表
+        {GlobalConst.DataLoadTag.NPCTable, new List<NPCTableData>()},   // NPC資料表
+    };
     #endregion
 
 
     public DataTableManager()
     {
-        DataState = new ReadDataState[Enum.GetValues(typeof(GlobalConst.DataLoadTag)).Length];
+        DataState = new ReadDataState[_allDataList.Count];
         for (int index = 0; index < DataState.Length; ++index)
         {
             DataState[index] = ReadDataState.Unload;
@@ -44,8 +47,42 @@ public class DataTableManager :IStartDependency
 
     ~DataTableManager()
     {
-        _eventDataList = null;
+        _allDataList = null;
     }
+
+    /// <summary>
+    /// 輔助輸出List內容
+    /// </summary>
+    /// <returns></returns>
+    string ListDataToString(IList dataList, string listName)
+    {
+        StringBuilder sb = new StringBuilder();
+        if (dataList != null && dataList.Count > 0)
+        {
+            for (int index = 0; index < dataList.Count; ++index)
+            {
+                sb.AppendFormat("{0}[{1}] =\n{2}", listName, index, dataList[index]);
+            }
+            sb.Append("********************************\n");
+        }
+        return sb.ToString();
+    }
+
+    /// <summary>
+    /// 將所有資料List內容輸出
+    /// </summary>
+    public override string ToString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.Append("DataTableManager:\n");
+        sb.Append(ListDataToString(_allDataList[GlobalConst.DataLoadTag.Event] as IList, "_allDataList[Event]"));
+        sb.Append(ListDataToString(_allDataList[GlobalConst.DataLoadTag.Plant] as IList, "_allDataList[Plant]"));
+        sb.Append(ListDataToString(_allDataList[GlobalConst.DataLoadTag.Scene] as IList, "_allDataList[Scene]"));
+        sb.Append(ListDataToString(_allDataList[GlobalConst.DataLoadTag.NPCTable] as IList, "_allDataList[NPCTable]"));
+        sb.Append("End Of DataTableManager\n");
+        return sb.ToString();
+    }
+
 
     bool IStartDependency.IsStartDataReady
     {
@@ -85,7 +122,7 @@ public class DataTableManager :IStartDependency
     // 得處理一下非同步狀況處理
     IEnumerator Load(int tag, LoadAttribute loadAttr)
     {
-        string filePath = GlobalConst.DIR_DATA_JSON + loadAttr.FileName;
+        string filePath = GlobalConst.DIR_DATA_JSON + loadAttr.FileName + GlobalConst.EXT_JSONDATA;
         string encodingStr = string.Empty;
         if (filePath.Contains("://"))
         {
@@ -97,34 +134,24 @@ public class DataTableManager :IStartDependency
         {
             encodingStr = File.ReadAllText(filePath);
         }
-        bool isSuccess;
-
         try
         {
-            switch (loadAttr.FileName)
+            Common.DebugMsgFormat("讀取 {0} 的 Data", (GlobalConst.DataLoadTag)tag);
+            object refObj = Activator.CreateInstance(typeof(List<>).MakeGenericType(loadAttr.DataType));
+            bool isSuccess = DeserializeObject(encodingStr, ref refObj);
+            if (isSuccess)
             {
-                case "EventData.json":
-                    Common.DebugMsgFormat("In EventData");
-                    object refObj = Activator.CreateInstance(typeof(List<>).MakeGenericType(loadAttr.DataType));
-                    isSuccess = DeserializeObject(encodingStr, ref refObj);
-                    if (isSuccess)
-                    {
-                        _eventDataList = refObj as List<EventData>;
-                        int index = 0;
-                        foreach (EventData ed in _eventDataList)
-                        {
-                            Common.DebugMsgFormat("EventData[{0}] = \n{1}\n", index++, ed);
-                        }
-                        DataState[tag] = ReadDataState.HaveLoad;
-                        Common.DebugMsg("EventData讀取成功");
-                    }
-                    else
-                    {
-                        DataState[tag] = ReadDataState.ReadError;
-                        Common.DebugMsg("EventData讀取失敗");
-                    }
-                    break;
+                _allDataList[(GlobalConst.DataLoadTag)tag] = refObj as IList;
+                DataState[tag] = ReadDataState.HaveLoad;
+                Common.DebugMsgFormat("{0}讀取成功", (GlobalConst.DataLoadTag)tag);
             }
+            else
+            {
+                DataState[tag] = ReadDataState.ReadError;
+                Common.DebugMsgFormat("{0}讀取失敗", (GlobalConst.DataLoadTag)tag);
+            }
+
+
         }
         catch (Exception e)
         {
@@ -162,10 +189,16 @@ public class DataTableManager :IStartDependency
         }
     }
 
+    #region 取得table資料表
 
-    public List<EventData> GetAllEventData()
+    public List<GameEventData> GetAllEventData()
     {
-        return _eventDataList;
+        return _allDataList[GlobalConst.DataLoadTag.Event] as List<GameEventData>;
     }
 
+    public List<PlantData> GetAllPlantData()
+    {
+        return _allDataList[GlobalConst.DataLoadTag.Plant] as List<PlantData>;
+    }
+    #endregion
 }

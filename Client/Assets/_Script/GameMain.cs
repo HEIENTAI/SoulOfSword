@@ -167,19 +167,11 @@ public class GameMain : MonoBehaviour
     {
         _testScrollPosition = GUILayout.BeginScrollView(_testScrollPosition); // 加入捲軸
         
-        List<EventData> test = _dataTableManager.GetAllEventData();
+        List<GameEventData> test = _dataTableManager.GetAllEventData();
         string filePath = GlobalConst.DIR_DATA_JSON + "EventData" + GlobalConst.EXT_JSONDATA;
-        //Common.DebugMsgFormat("test.count = {0}", test.Count);
         _testString = string.Format("filePath = {1} test.count = {0} streamingAssetsPath = {2}\n", (test == null) ? 0 : test.Count, filePath, Application.streamingAssetsPath);
         if (!System.IO.File.Exists(filePath)) { _testString = string.Format("{0}Can't find {1}\n",_testString, filePath); }
-        int index = 0;
-        if (test != null)
-        {
-            foreach (EventData ed in test)
-            {
-                _testString = string.Format("{2}EventData[{0}] = {1}\n", index++, ed, _testString);
-            }
-        }
+        _testString = _testString + _dataTableManager.ToString();
         GUILayout.TextArea(_testString, GUILayout.ExpandHeight(true)); // 自動伸縮捲軸
         GUILayout.EndScrollView();
         GUI.DragWindow();

@@ -14,22 +14,36 @@ public class GlobalConst
     public static readonly string DIR_ROOT = Application.dataPath + Path.DirectorySeparatorChar;
     public static readonly string DIR_RESOURCES = DIR_ROOT + "Resources" + Path.DirectorySeparatorChar;
 
+    public static readonly string DIR_MODEL = "Model" + Path.DirectorySeparatorChar;
+
+
     public static readonly string DIR_DATA_ROOT = Application.streamingAssetsPath + Path.DirectorySeparatorChar;
     public static readonly string DIR_DATA_JSON = DIR_DATA_ROOT + "JSON" + Path.DirectorySeparatorChar;
 
     public static readonly string EXT_JSONDATA = ".json";
     #endregion
+    #region 檔名相關（無副檔名）
+    public const string FILENAME_EVENT = "EventData"; // 遊戲事件資料檔名
+    public const string FILENAME_PLANT = "PlantData"; // 種植檔資料
+    public const string FILENAME_SCENE = "SceneData"; // 場景資料
+    public const string FILENAME_NPC_TABLE = "NPCTableData"; // NPC表格資料
 
-    public const string JSON_EVENT = "EventData.json";
+    #endregion
 
     public static readonly DataConvertInfomation[] DataConvertList = 
     {
-        new DataConvertInfomation(typeof(EventData), "EventData"),
+        new DataConvertInfomation(typeof(GameEventData), FILENAME_EVENT), // 遊戲事件資料
+        new DataConvertInfomation(typeof(PlantData), FILENAME_PLANT),     // 種植檔資料
+        new DataConvertInfomation(typeof(SceneData), FILENAME_SCENE),     // 場景資料
+        new DataConvertInfomation(typeof(NPCTableData), FILENAME_NPC_TABLE), // NPC表格資料
     };
 
     public enum DataLoadTag
     {
-        [LoadAttribute(JSON_EVENT, typeof(EventData))] Event, // 事件資料表
+        [LoadAttribute(FILENAME_EVENT, typeof(GameEventData))]        Event = 0, // 遊戲事件資料表
+        [LoadAttribute(FILENAME_PLANT, typeof(PlantData))]            Plant = 1, // 種植檔
+        [LoadAttribute(FILENAME_SCENE, typeof(SceneData))]            Scene = 2, // 場景
+        [LoadAttribute(FILENAME_NPC_TABLE, typeof(NPCTableData))]     NPCTable = 3, // NPC表格
     };
 }
 

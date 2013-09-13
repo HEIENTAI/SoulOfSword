@@ -4,6 +4,7 @@ using System.Collections.Generic;
 /// <summary>
 /// 事件管理器
 /// </summary>
+// TODO :可能需要實踐觀察者，使用冠傑找到的方式？
 public class EventManager
 {
     List<Event> _allEvent;

@@ -45,7 +45,8 @@ public class PCUnit : BaseUnit
     public void GenerateModel()
     {
         Common.DebugMsg("產生pc model");
-        _renderObject = Instantiate(ResourceStation.Instance.GetResource("Model/PrototypeCharacter/Constructor")) as GameObject;
+        // 
+        _renderObject = Instantiate(ResourceStation.Instance.GetResource("Model/Constructor/Constructor")) as GameObject;
         _renderObject.transform.parent = transform;
         transform.position = new Vector3(66.89587f, 10.90868f, 42.0879f);
         transform.rotation = Quaternion.identity;
