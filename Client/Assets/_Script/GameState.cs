@@ -99,14 +99,13 @@ public class GameEntered : IGameState
 
     void IGameState.Update()
     {
-        //throw new System.NotImplementedException();
         if (!isStartDataLoadDone)
         {
             Common.DebugMsg("Update (Start data not load done)");
             if (GameMain.Instance.StartDataReady) 
             {
                 Common.DebugMsg("Update (Start data done)");
-                GameMain.Instance.SceneManager.ChangeScene(1);
+                GameMain.Instance.SceneManager.ChangeScene(1, 67, 42);
                 isStartDataLoadDone = true;
             }
         }

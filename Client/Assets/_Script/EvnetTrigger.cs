@@ -6,7 +6,7 @@ using System.Text;
 /// <summary>
 /// 事件觸發
 /// </summary>
-class EvnetTrigger : MonoBehaviour
+class EvnetTrigger
 {
 
 }

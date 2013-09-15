@@ -46,11 +46,13 @@ public class GameMain : MonoBehaviour
     {
         get { return _cameraManager; }
     }
-    private EventManager _eventManager;
-    public  EventManager EventManager
+    private GameEventManager _gameEventManager;
+    public  GameEventManager GameEventManager
     {
-        get { return _eventManager; }
+        get { return _gameEventManager; }
     }
+    private NPCUnitManager _npcUnitManager;
+
 
     private PCUnit _myRole;
     public PCUnit MyRole
@@ -94,7 +96,10 @@ public class GameMain : MonoBehaviour
         _sceneManager = new SceneManager();
         _playerInput = PlayerInput.Instance;
         _cameraManager = new CameraManager();
-        _eventManager = new EventManager();
+        _npcUnitManager = new NPCUnitManager();
+        _gameEventManager = new GameEventManager();
+
+        _npcUnitManager = NPCUnitManager.Instance;
 
         // 進入遊戲前需處理好的class，加載位置可能要換
         _startDependencies.Add(_dataTableManager);
@@ -107,7 +112,7 @@ public class GameMain : MonoBehaviour
             _gameState.Update();
         if (_sceneManager.ChangeSceneComplete)
             _cameraManager.UpdateMainCamera();
-        _eventManager.CheckAndTriggerEvent();
+        //_eventManager.CheckAndTriggerEvent();
     }
 
     void OnDestroy()
@@ -115,9 +120,18 @@ public class GameMain : MonoBehaviour
         _gameState = null;
         _dataTableManager = null;
         _sceneManager = null;
-        _playerInput = null;
+        if (_playerInput != null)
+        {
+            Destroy(_playerInput);
+            _playerInput = null;
+        }
         _cameraManager = null;
-        _eventManager = null;
+        _gameEventManager = null;
+        if (_npcUnitManager != null)
+        {
+            Destroy(_npcUnitManager);
+            _npcUnitManager = null;
+        }
         _instance = null;
     }
 
@@ -134,23 +148,34 @@ public class GameMain : MonoBehaviour
     #endregion
 
 
-    public void PrepareMyRole()
+    public void PrepareMyRole(Vector2 twoDPos)
     {
-        if (_myRole != null)
-            return;
         Common.DebugMsg("準備pc");
-        _myRole = PCUnit.newInstance(1);
-
-        _myRole.GenerateModel();
-
+        if (_myRole == null)
+        {
+            _myRole = PCUnit.newInstance(1);
+            _myRole.GenerateModel();
+        }
+        _myRole.Position = Common.Get3DGroundPos(twoDPos);
+        _myRole.Direction = Quaternion.identity;
     }
+
+    /// <summary>
+    /// 讀進下個場景之前要做的事情（清除npc...等
+    /// </summary>
+    public void LoadSceneBefore()
+    {
+        _npcUnitManager.ClearAll();
+    }
+
     /// <summary>
     /// 場景切換完畢之後要做的事情
     /// </summary>
-    public void LoadSceneOver()
+    public void LoadSceneOver(Vector2 myRoleNewPos)
     {
-        PrepareMyRole();
-        _cameraManager.RefreshCurrentSceneCameras();
+        PrepareMyRole(myRoleNewPos);
+        _npcUnitManager.CreateAndShowAllNPCInCurrentScene(_sceneManager.CurrentSceneID);
+        _cameraManager.RefreshSceneCameras();
     }
 
     Rect _testRect;
@@ -159,7 +184,6 @@ public class GameMain : MonoBehaviour
     void OnGUI()
     {
         _testRect = GUI.Window(1, _testRect, TestWindow, "Debug Window");
-
     }
 
 

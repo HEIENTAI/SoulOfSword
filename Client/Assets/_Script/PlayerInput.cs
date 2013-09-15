@@ -54,7 +54,18 @@ public class PlayerInput : MonoBehaviour
     void On_JoystickMove(MovingJoystick move)
     {
         if (move.joystickName == "PlayerInputJoystick")
-        {            
+        {
+            if (!GameMain.Instance.SceneManager.ChangeSceneComplete)
+            {
+                
+                Common.DebugMsgFormat("換場中，不能移動！！");
+                return;
+            }
+            if (GameMain.Instance.GameEventManager.DoingEvent)
+            {
+                Common.DebugMsgFormat("事件中，不能移動");
+                return;
+            }
             Common.DebugMsg(string.Format("JoyStick移動中 ({0})", move.joystickAxis));
             //
 

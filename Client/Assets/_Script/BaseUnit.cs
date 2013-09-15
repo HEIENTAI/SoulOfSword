@@ -20,9 +20,46 @@ public class BaseUnit : MonoBehaviour
         }
     }
 
+    public Vector3 Position
+    {
+        get { return gameObject.transform.position; }
+        set { gameObject.transform.position = value; }
+    }
+
+    private float _scale = 1.0f;
+    public float Scale
+    {
+        set 
+        { 
+            _scale = value;
+            if (_renderObject != null)
+            {
+                _renderObject.transform.localScale = new Vector3(value, value, value);
+            }
+        }
+        get { return _scale; }
+    }
+
+
+    private bool _visible;
+    public bool Visible
+    {
+        set
+        {
+            _visible = value;
+            gameObject.SetActive(value);
+        }
+        get { return _renderObject == null ? false : _visible; }
+    }
+
 
     void OnDestroy()
     {
-        _renderObject = null;
+        if (_renderObject != null)
+        {
+            Destroy(_renderObject);
+            _renderObject = null;
+        }
+        Destroy(gameObject);
     }
 }

@@ -36,6 +36,16 @@ public class SceneManager
         get { return _changeSceneComplete; }
     }
 
+    private ushort _currentSceneID = 0;
+    public ushort CurrentSceneID
+    {
+        get { return _currentSceneID; }
+    }
+
+    private ushort _targetSceneID = 0;
+    private Vector2 _targetSceneRoleXY = Vector2.zero; // 若為Vector2.zero，不改座標
+
+
     // Use this for initialization
     //void Start () 
     //{
@@ -57,24 +67,41 @@ public class SceneManager
     /// 切換場景
     /// </summary>
     /// <param name="newSceneID">新場景ID</param>
-	public void ChangeScene(int newSceneID)
+    /// <param name="x">在新場景的座標x</param>
+    /// <param name="y">在新場景的座標y</param>
+	public void ChangeScene(ushort newSceneID, ushort x, ushort y)
     {
         _changeSceneComplete = false;
+        _targetSceneRoleXY.Set((float)x, (float)y);
         GameMain.Instance.StartCoroutine(ChangeSceneIEnumerator(newSceneID));
     }
     /// <summary>
     /// 切換場景
     /// </summary>
     /// <param name="newSceneID">新場景ID</param>
-    IEnumerator ChangeSceneIEnumerator(int newSceneID)
+    IEnumerator ChangeSceneIEnumerator(ushort newSceneID)
     {
         Resources.UnloadUnusedAssets();
-        yield return Application.LoadLevelAsync("Auction");
-        //yield return Application.LoadLevelAsync("Desert");
+        PlayerInput.Instance.enabled = false;
+        SceneData nextSceneData;
+        bool haveNextSceneData = GameMain.Instance.DataTableManager.TryGetOneSceneData(newSceneID, out nextSceneData);
+        if (!haveNextSceneData)
+        {
+            Common.DebugMsgFormat("場景編號 {0} 不存在，不做事", newSceneID);
+            yield break;
+        }
 
-        GameMain.Instance.LoadSceneOver();
+        GameMain.Instance.LoadSceneBefore(); // 讀取新場景前需要做的事情
+        yield return Application.LoadLevelAsync(nextSceneData.SceneFileName);
+
+
+        _currentSceneID = newSceneID; // 換場OK，將現在場景ID切到新的
+        GameMain.Instance.LoadSceneOver(_targetSceneRoleXY); // 處理換完場要弄得事情
+        _targetSceneRoleXY = Vector2.zero;
+        PlayerInput.Instance.enabled = true;
         Debug.Log("test");
 
         _changeSceneComplete = true;
     }
 }
+

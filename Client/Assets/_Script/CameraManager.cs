@@ -12,12 +12,12 @@ public class CameraManager
         get { return _curCamera; }
     }
     /// <summary>
-    /// 刷新這個場景的攝影機
+    /// 刷新場景攝影機
     /// </summary>
-    public void RefreshCurrentSceneCameras()
+    public void RefreshSceneCameras()
     {
         GameObject[] allCamera = GameObject.FindGameObjectsWithTag("MainCamera");
-
+        _allCamera.Clear();
         foreach (GameObject go in allCamera)
         {
             if (go.camera != null)

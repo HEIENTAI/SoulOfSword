@@ -45,14 +45,12 @@ public class PCUnit : BaseUnit
     public void GenerateModel()
     {
         Common.DebugMsg("產生pc model");
-        // 
-        _renderObject = Instantiate(ResourceStation.Instance.GetResource("Model/Constructor/Constructor")) as GameObject;
+        _renderObject = Instantiate(ResourceStation.Instance.GetModelResource("Constructor")) as GameObject;
         _renderObject.transform.parent = transform;
-        transform.position = new Vector3(66.89587f, 10.90868f, 42.0879f);
-        transform.rotation = Quaternion.identity;
+        
     }
 
-    // 暫時，之後得改
+    // TODO: 暫時，之後得改
     public void CrossAnimation(string animeName)
     {
         Common.DebugMsg(string.Format("新動作為：{0}", animeName));
@@ -76,17 +74,25 @@ public class PCUnit : BaseUnit
     /// <param name="manitude">移動速度比值</param>
     public void Move(float angle, float manitude)
     {
+        if (GameMain.Instance.CameraManager.CurrentCamera == null)
+        {
+            Common.DebugMsg("現在場景主Camera設定中，不能移動");
+            return;
+        }
         _initDirectionDegree = GameMain.Instance.CameraManager.CurrentCamera.transform.eulerAngles.y;
         _destDirectionDegree = Common.ToArg(_initDirectionDegree + angle);
         Vector2 moveVector = Common.DegreeToVector2InModel(_destDirectionDegree);
         Vector3 newPos = transform.position + _speed * Time.deltaTime * manitude * new Vector3(moveVector.x, 0, moveVector.y);
 
         // 決定高度
-        RaycastHit collisionHit;
-        if (Physics.Raycast(newPos + 10000 * Vector3.up, Vector3.down, out collisionHit)) // 之後可能需要加layer
+        Vector3 groundPos = Common.Get3DGroundPos(newPos.x, newPos.z);
+        if (groundPos.y > Mathf.NegativeInfinity)
         {
-            transform.position = collisionHit.point + _bodyHeight * Vector3.up;
+            Position = groundPos; 
+            //+_bodyHeight * Vector3.up;
         }
+
+        NPCUnitManager.Instance.CheckNear();
     }
 
     /// <summary>

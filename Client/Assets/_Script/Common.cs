@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Text;
 
 /// <summary>
 /// 共用method的class
@@ -19,10 +20,26 @@ public static class Common
         Debug.Log(string.Format(format, args));
     }
 
-    public static float DirectionY(this Camera cam)
+    /// <summary>
+    /// 將dataList的內容轉換成字串，方便輸出
+    /// </summary>
+    /// <param name="dataList">待轉換成字串的List</param>
+    /// <param name="listName">List前面要加的名字</param>
+    /// <returns>轉換後的字串</returns>
+    public static string ListDataToString(IList dataList, string listName)
     {
-        return cam.transform.rotation.eulerAngles.y;
+        StringBuilder sb = new StringBuilder();
+        if (dataList != null && dataList.Count > 0)
+        {
+            for (int index = 0; index < dataList.Count; ++index)
+            {
+                sb.AppendFormat("{0}[{1}] =\n{2}", listName, index, dataList[index]);
+            }
+            sb.Append("********************************\n");
+        }
+        return sb.ToString();
     }
+
 
     /// <summary>
     /// 測試世界座標系的點（positionInWorld）是否在攝影機（cam）的viewport內
@@ -38,7 +55,7 @@ public static class Common
             positionInViewPort.z > 0.0f && positionInViewPort.z <= cam.farClipPlane); // 在viewport內
     }
 
-    #region 數學相關
+    #region 單純數學相關
     /// <summary>
     /// 取得角度對應的主輻角（介於0到360度之間），即扣除多餘的繞圈
     /// </summary>
@@ -72,4 +89,45 @@ public static class Common
         return new Vector2(Mathf.Sin(angleRad), Mathf.Cos(angleRad));
     }
     #endregion
+
+    /// <summary>
+    /// 根據twoDPos座標，取得對應的3維地面座標
+    /// </summary>
+    /// <returns>對應的地面座標</returns>
+    public static Vector3 Get3DGroundPos(Vector2 twoDPos)
+    {
+        return Get3DGroundPos(twoDPos.x, twoDPos.y);
+    }
+
+    /// <summary>
+    /// 根據(x,y)座標，取得對應的3維地面Unity座標
+    /// </summary>
+    /// <returns>對應的地面座標</returns>
+    public static Vector3 Get3DGroundPos(float x, float y)
+    {
+        Vector3 groundPos = new Vector3(x, 0, y);
+        //if (Terrain.activeTerrain != null)
+        {
+            RaycastHit collisionHit;
+            if (Physics.Raycast(groundPos + Vector3.up * GlobalConst.MAX_HEIGHT, Vector3.down, out collisionHit))
+            {
+                groundPos = collisionHit.point;
+            }
+            else
+            {
+                groundPos.y = Mathf.NegativeInfinity;
+            }
+        }
+        return groundPos;
+    }
+
+    /// <summary>
+    /// 依據npcID和序列號取得對應的單位Key
+    /// </summary>
+    /// <returns>對應的單位Key</returns>
+    public static uint GetNPCUnitKey(ushort npcID, ushort serialNumber)
+    {
+        return npcID * GlobalConst.NPCID_TO_KEY_TIMES + serialNumber;
+    }
+
 }

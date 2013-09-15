@@ -51,34 +51,16 @@ public class DataTableManager :IStartDependency
     }
 
     /// <summary>
-    /// 輔助輸出List內容
-    /// </summary>
-    /// <returns></returns>
-    string ListDataToString(IList dataList, string listName)
-    {
-        StringBuilder sb = new StringBuilder();
-        if (dataList != null && dataList.Count > 0)
-        {
-            for (int index = 0; index < dataList.Count; ++index)
-            {
-                sb.AppendFormat("{0}[{1}] =\n{2}", listName, index, dataList[index]);
-            }
-            sb.Append("********************************\n");
-        }
-        return sb.ToString();
-    }
-
-    /// <summary>
     /// 將所有資料List內容輸出
     /// </summary>
     public override string ToString()
     {
         StringBuilder sb = new StringBuilder();
         sb.Append("DataTableManager:\n");
-        sb.Append(ListDataToString(_allDataList[GlobalConst.DataLoadTag.Event] as IList, "_allDataList[Event]"));
-        sb.Append(ListDataToString(_allDataList[GlobalConst.DataLoadTag.Plant] as IList, "_allDataList[Plant]"));
-        sb.Append(ListDataToString(_allDataList[GlobalConst.DataLoadTag.Scene] as IList, "_allDataList[Scene]"));
-        sb.Append(ListDataToString(_allDataList[GlobalConst.DataLoadTag.NPCTable] as IList, "_allDataList[NPCTable]"));
+        sb.Append(Common.ListDataToString(_allDataList[GlobalConst.DataLoadTag.Event] as IList, "_allDataList[Event]"));
+        sb.Append(Common.ListDataToString(_allDataList[GlobalConst.DataLoadTag.Plant] as IList, "_allDataList[Plant]"));
+        sb.Append(Common.ListDataToString(_allDataList[GlobalConst.DataLoadTag.Scene] as IList, "_allDataList[Scene]"));
+        sb.Append(Common.ListDataToString(_allDataList[GlobalConst.DataLoadTag.NPCTable] as IList, "_allDataList[NPCTable]"));
         sb.Append("End Of DataTableManager\n");
         return sb.ToString();
     }
@@ -143,6 +125,11 @@ public class DataTableManager :IStartDependency
             {
                 _allDataList[(GlobalConst.DataLoadTag)tag] = refObj as IList;
                 DataState[tag] = ReadDataState.HaveLoad;
+                // TODO: 讀取事件資料完成用觀察者？
+                if (tag == (int)GlobalConst.DataLoadTag.Event)
+                {
+                    GameMain.Instance.GameEventManager.Initialize();
+                }
                 Common.DebugMsgFormat("{0}讀取成功", (GlobalConst.DataLoadTag)tag);
             }
             else
@@ -189,16 +176,99 @@ public class DataTableManager :IStartDependency
         }
     }
 
-    #region 取得table資料表
-
+    #region 取得EventData相關
+    /// <summary>
+    /// 取得所有事件資料
+    /// </summary>
+    /// <returns>取得的事件資料</returns>
     public List<GameEventData> GetAllEventData()
     {
         return _allDataList[GlobalConst.DataLoadTag.Event] as List<GameEventData>;
     }
 
+
+    #endregion
+    #region 取得PlantData相關
+    /// <summary>
+    /// 取得所有種植資料
+    /// </summary>
+    /// <returns>取得的種植資料</returns>
     public List<PlantData> GetAllPlantData()
     {
         return _allDataList[GlobalConst.DataLoadTag.Plant] as List<PlantData>;
+    }
+
+    /// <summary>
+    /// 依據場景ID嘗試取得該場景所有的種植資料
+    /// </summary>
+    /// <param name="sceneID">要取得種植資料的場景ID</param>
+    /// <param name="data">取得的種植資料存放處</param>
+    /// <returns>是否有取得資料</returns>
+    public bool TryGetPlantDatasBySceneID(ushort sceneID, out List<PlantData> data)
+    {
+        data = new List<PlantData>();
+        if (DataState[(int)GlobalConst.DataLoadTag.Plant] != ReadDataState.HaveLoad) { return false; }
+        if (_allDataList[GlobalConst.DataLoadTag.Plant] == null) { return false; }
+
+        data = (_allDataList[GlobalConst.DataLoadTag.Plant] as List<PlantData>).FindAll(pd => pd.SceneID == sceneID);
+
+        return data.Count > 0; // data.Count == 0 表示找不到資料
+    }
+
+    #endregion
+
+    #region 取得SceneData相關
+    /// <summary>
+    /// 取得所有場景資料
+    /// </summary>
+    /// <returns>取得的場景資料</returns>
+    public List<SceneData> GetAllSceneData()
+    {
+        return _allDataList[GlobalConst.DataLoadTag.Scene] as List<SceneData>;
+    }
+
+    /// <summary>
+    /// 依據場景ID嘗試取得一筆場景資料
+    /// </summary>
+    /// <param name="sceneID">要取得場景資料的場景ID</param>
+    /// <param name="data">取得的場景資料存放處</param>
+    /// <returns>是否有取得場景資料</returns>
+    public bool TryGetOneSceneData(ushort sceneID, out SceneData data)
+    {
+        data = default(SceneData);
+        if (DataState[(int)GlobalConst.DataLoadTag.Scene] != ReadDataState.HaveLoad) { return false; }
+        if (_allDataList[GlobalConst.DataLoadTag.Scene] == null) {return false;}
+
+        data = (_allDataList[GlobalConst.DataLoadTag.Scene] as List<SceneData>).Find(sd => sd.SceneID == sceneID);
+
+        return data != default(SceneData); // 若data == default(SceneData) 表示沒有搜尋到資料
+    }
+    #endregion
+    #region 取得NPC Table資料相關
+    /// <summary>
+    /// 取得所有NPC表格資料
+    /// </summary>
+    /// <returns>取得的NPC表格資料</returns>
+    public List<NPCTableData> GetAllNPCTableData()
+    {
+        return _allDataList[GlobalConst.DataLoadTag.NPCTable] as List<NPCTableData>;
+    }
+
+    /// <summary>
+    /// 依據npcID嘗試取得一筆NPC表格資料
+    /// </summary>
+    /// <param name="npcID">要取得npcID的</param>
+    /// <param name="data">NPC表格資料存放處</param>
+    /// <returns>是否有取得NPC表格資料</returns>
+    public bool TryGetNPCTableData(ushort npcID, out NPCTableData data)
+    {
+        data = default(NPCTableData);
+        if (DataState[(int)GlobalConst.DataLoadTag.NPCTable] != ReadDataState.HaveLoad) { return false; }
+        if (_allDataList[GlobalConst.DataLoadTag.NPCTable] == null) { return false; }
+
+        data = (_allDataList[GlobalConst.DataLoadTag.NPCTable] as List<NPCTableData>).Find(nt => nt.NPCID == npcID);
+
+        return data != default(NPCTableData); // 若data == default(NPCTableData) 表示沒有搜尋到資料
     }
     #endregion
 }

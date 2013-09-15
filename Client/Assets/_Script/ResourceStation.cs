@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.IO;
 using System.Collections.Generic;
 
 /// <summary>
@@ -32,5 +33,15 @@ public class ResourceStation : MonoBehaviour
     public Object GetResource(string name)
     {
         return Resources.Load(name);
+    }
+
+    /// <summary>
+    /// 依據modelName取得資源
+    /// </summary>
+    /// <param name="modelName">模型名稱</param>
+    /// <returns>相對應資源</returns>
+    public Object GetModelResource(string modelName)
+    {
+        return Resources.Load(GlobalConst.DIR_MODEL + Path.AltDirectorySeparatorChar + modelName + System.IO.Path.AltDirectorySeparatorChar + modelName); 
     }
 }

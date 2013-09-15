@@ -8,13 +8,18 @@ public class GlobalConst
     #region 數值常數
     public const float DEGREE_PER_CIRCLE = 360.0f; // 一圈 = 360度
     public const float DEGREE_PER_HALF_CIRCLE = 180.0f; // 半圈 = 180度
+
+    public const float MAX_HEIGHT = 10000f; // 最高高度
+    public const float EVENT_TRIGGER_DIS_SQR = 0.25f; // 能觸發事件的NPC和PC距離的平方
+
+
+    public const uint NPCID_TO_KEY_TIMES = 1000; // NPCID要轉成Key時用的乘上的數字 (式子：Key = npcID * NPCID_TO_KEY_TIMES + serialNumber）
     #endregion
 
     #region 路徑相關常數
     public static readonly string DIR_ROOT = Application.dataPath + Path.DirectorySeparatorChar;
-    public static readonly string DIR_RESOURCES = DIR_ROOT + "Resources" + Path.DirectorySeparatorChar;
 
-    public static readonly string DIR_MODEL = "Model" + Path.DirectorySeparatorChar;
+    public static readonly string DIR_MODEL = "Model";
 
 
     public static readonly string DIR_DATA_ROOT = Application.streamingAssetsPath + Path.DirectorySeparatorChar;
