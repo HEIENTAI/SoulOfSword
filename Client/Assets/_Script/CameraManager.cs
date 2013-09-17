@@ -39,9 +39,11 @@ public class CameraManager
 
         foreach (Camera ca in _allCamera)
         {
-            if (ca.WorldPositionInCameraViewPort(GameMain.Instance.MyRole.transform.position))
+            //if (ca.WorldPositionInCameraViewPort(GameMain.Instance.MyRole.transform.position))
+            if (ca.WorldPositionInCameraViewPort(GameMain.Instance.MyRole.Position))
             {
-                Vector3 diff = GameMain.Instance.MyRole.transform.position - ca.transform.position;
+                //Vector3 diff = GameMain.Instance.MyRole.transform.position - ca.transform.position;
+                Vector3 diff = GameMain.Instance.MyRole.Position - ca.transform.position;
                 float curAngle = Vector3.Angle(ca.transform.forward, diff);
                 float curDis = diff.sqrMagnitude;
                 if (curAngle < angle || (curAngle == angle && curDis < dis))

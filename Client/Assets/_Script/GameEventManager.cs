@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿using System;
 using System.Collections.Generic;
 
 /// <summary>
@@ -7,9 +7,8 @@ using System.Collections.Generic;
 // TODO :可能需要實踐觀察者，使用冠傑找到的方式？
 public class GameEventManager
 {
-
     private Dictionary<ushort, List<EventDataInGame>> _allEventDataInGame; // 利用List的index作為事件subID索引
-
+    
 
     private uint _doingEvent;
     public bool DoingEvent
@@ -34,7 +33,7 @@ public class GameEventManager
         sb.Append("========= EventManager ============\n");
         foreach (ushort eventMainKey in _allEventDataInGame.Keys)
         {
-            sb.AppendFormat("MainKey = {0}\n{1}\n", eventMainKey, Common.ListDataToString(_allEventDataInGame[eventMainKey], string.Format("allEventDataInGame[{0}]", eventMainKey)));
+            sb.AppendFormat("MainKey = {0}\n{1}\n", eventMainKey, Common.ListDataToString(_allEventDataInGame[eventMainKey], string.Format("allEventDataInGame[{0}]", eventMainKey), 1));
         }
         sb.Append("===================================\n");
         return sb.ToString();
@@ -94,16 +93,19 @@ public class GameEventManager
     {
         _doingEvent = mainID;
         Common.DebugMsgFormat("Doing Event {0}", mainID);
-        if (_allEventDataInGame.ContainsKey(mainID))
+        // 只有事件資料包含此主事件ID才執行
+        if (_allEventDataInGame.ContainsKey(mainID) )
         {
-            if (_allEventDataInGame[mainID][1].CanTrigger()) // TODO: 順序的問題之後再處理
-            {
-                _allEventDataInGame[mainID][1].RunTrueEffect();
-            }
-            else
-            {
-                _allEventDataInGame[mainID][1].RunFalseEffect();
-            }
+            // 取得下一個執行的子事件ID
+            ushort currentSubID = GameMain.Instance.GameEventState.GetNextEventSubID(mainID);
+            Common.DebugMsgFormat("get sub ID = {0}", currentSubID);
+            // 如果取得的值超出資料範圍，就執行最後一個
+            currentSubID = (currentSubID < _allEventDataInGame[mainID].Count) ? currentSubID : (ushort)(_allEventDataInGame[mainID].Count - 1);
+            Common.DebugMsgFormat("調整後的sub ID = {0}", currentSubID);
+            // 一次只觸發一個事件，事件觸發完畢就結束。
+            _allEventDataInGame[mainID][currentSubID].CheckAndTriggerThisEvent();
+            // 執行完畢將現在執行到的子事件ID記錄起來
+            GameMain.Instance.GameEventState.SetCurrentEventSubID(mainID, currentSubID);
         }
         _doingEvent = 0;
     }
@@ -112,7 +114,7 @@ public class GameEventManager
 /// <summary>
 /// 遊戲中儲存事件的內容
 /// </summary>
-public class EventDataInGame
+class EventDataInGame
 {
     /// <summary>
     /// 主事件ID
@@ -131,10 +133,10 @@ public class EventDataInGame
         set;
     }
 
-    private List<GameEventConditionData> _coditionList = new List<GameEventConditionData>();
-    private List<GameEventEffectData> _trueEffect = new List<GameEventEffectData>();
-    private List<GameEventEffectData> _falseEffect = new List<GameEventEffectData>();
-
+    private List<GameEventCondition> _conditionList = new List<GameEventCondition>();
+    private List<GameEventEffect> _trueEffect = new List<GameEventEffect>();
+    private List<GameEventEffect> _falseEffect = new List<GameEventEffect>();
+    
     public EventDataInGame(ushort mainID, ushort subID)
     {
         MainID = mainID;
@@ -143,7 +145,7 @@ public class EventDataInGame
 
     ~EventDataInGame()
     {
-        _coditionList = null;
+        _conditionList = null;
         _trueEffect = null;
         _falseEffect = null;
     }
@@ -154,9 +156,9 @@ public class EventDataInGame
         sb.Append("========= EventDataInGame ============\n");
         sb.AppendFormat("主事件ID = {0}\n", MainID);
         sb.AppendFormat("子事件ID = {0}\n", SubID);
-        sb.Append(Common.ListDataToString(_coditionList, "_conditionList"));
-        sb.Append(Common.ListDataToString(_trueEffect, "_trueEffect"));
-        sb.Append(Common.ListDataToString(_falseEffect, "_falseEffect"));
+        sb.Append(Common.ListDataToString(_conditionList, "_conditionList", 1));
+        sb.Append(Common.ListDataToString(_trueEffect, "_trueEffect", 1));
+        sb.Append(Common.ListDataToString(_falseEffect, "_falseEffect", 1));
         sb.Append("===================================\n");
         return sb.ToString();
     }
@@ -169,15 +171,15 @@ public class EventDataInGame
     /// <returns>是否有資料被覆蓋</returns>
     public bool AddOrReplaceCoditionData(int index, GameEventConditionData oneData)
     {
-        if (index >= _coditionList.Count)
+        if (index >= _conditionList.Count)
         {
-            for (int i = _coditionList.Count; i <= index; ++i)
+            for (int i = _conditionList.Count; i <= index; ++i)
             {
-                _coditionList.Add(null);
+                _conditionList.Add(GameEventCondition.CreateGameEventCondition(null));
             }
         }
-        bool haveData = (_coditionList[index] != null); // 不等於null，表示有資料會被蓋掉
-        _coditionList[index] = oneData;
+        bool haveData = (_conditionList[index].GetType() != typeof(GameEventCondition)); // 型別不等於base型別，表示有資料會被蓋掉
+        _conditionList[index] = GameEventCondition.CreateGameEventCondition(oneData);
         return haveData;
     }
 
@@ -194,11 +196,11 @@ public class EventDataInGame
         {
             for (int i = _trueEffect.Count; i <= index; ++i)
             {
-                _trueEffect.Add(null);
+                _trueEffect.Add(GameEventEffect.CreateGameEventEffect(null));
             }
         }
-        bool haveData = (_trueEffect[index] != null); // 不等於null，表示有資料會被蓋掉
-        _trueEffect[index] = oneData;
+        bool haveData = (_trueEffect[index].GetType() != typeof(GameEventEffect)); // 型別不等於base型別，表示有資料會被蓋掉
+        _trueEffect[index] = GameEventEffect.CreateGameEventEffect(oneData);
         return haveData;
     }
 
@@ -214,23 +216,26 @@ public class EventDataInGame
         {
             for (int i = _falseEffect.Count; i <= index; ++i)
             {
-                _falseEffect.Add(null);
+                _falseEffect.Add(GameEventEffect.CreateGameEventEffect(null));
             }
         }
-        
-        bool haveData = (_falseEffect[index] != null); // 不等於null，表示有資料會被蓋掉
-        _falseEffect[index] = oneData;
+
+        bool haveData = (_falseEffect[index].GetType() != typeof(GameEventEffect)); // 型別不等於base型別，表示有資料會被蓋掉
+        _falseEffect[index] = GameEventEffect.CreateGameEventEffect(oneData);
         return haveData;
     }
 
     /// <summary>
     /// 判斷此事件是否可觸發
     /// </summary>
-    public bool CanTrigger()
+    bool CanTrigger()
     {
-        foreach (GameEventConditionData oneData in _coditionList)
+        for (int index = 1;index < _conditionList.Count; ++index)
         {
-            //if (oneData
+            if(!_conditionList[index].CheckCondition())
+            {
+                return false;
+            }
         }
         return true;
     }
@@ -238,30 +243,37 @@ public class EventDataInGame
     /// <summary>
     /// 執行正效果
     /// </summary>
-    public void RunTrueEffect()
-    {
-        // 先只執行第一個
-        switch (_trueEffect[1].EffectType)
-        {
-            case 3: // 之後用enum 此為傳送
-                if (_trueEffect[1].EffectParameter[0].HasValue)
-                {
-                    ushort x = _trueEffect[1].EffectParameter[1].HasValue ? _trueEffect[1].EffectParameter[1].Value : (ushort)0;
-                    ushort y = _trueEffect[1].EffectParameter[2].HasValue ? _trueEffect[1].EffectParameter[2].Value : (ushort)0;
-                    GameMain.Instance.SceneManager.ChangeScene(_trueEffect[1].EffectParameter[0].Value, x, y);
-                }
-                break;
-            default:
-                Common.DebugMsgFormat("Event({0}, {1})正效果 1 為：{2}", MainID, SubID, _trueEffect[1]);
-                break;
+    void RunTrueEffect()
+    {   // 依序執行事件效果
+        for (int index = 1; index < _trueEffect.Count; ++index)
+        {            
+            _trueEffect[index].RunEffect();
         }
     }
 
     /// <summary>
     /// 執行反效果
     /// </summary>
-    public void RunFalseEffect()
-    {
+    void RunFalseEffect()
+    {   // 依序執行事件效果
+        for (int index = 1; index < _falseEffect.Count; ++index)
+        {
+            _falseEffect[index].RunEffect();
+        }
+    }
 
+    /// <summary>
+    /// 確認是否有此事件要被觸發，有則觸發事件
+    /// </summary>
+    public void CheckAndTriggerThisEvent()
+    {
+        if (CanTrigger())
+        {
+            RunTrueEffect();
+        }
+        else
+        {
+            RunFalseEffect();
+        }
     }
 }

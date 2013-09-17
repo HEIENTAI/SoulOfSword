@@ -14,8 +14,6 @@ public class PCUnit : BaseUnit
         get { return _PCID; }
         set { _PCID = value; }
     }
-    //private Quaternion _initDirection = Quaternion.identity; // 初始朝向
-    //private Quaternion _destDirection = Quaternion.identity;
     private float _initDirectionDegree = 0.0f; // 初始方向(以度為單位)
     private float _destDirectionDegree = 0.0f; // 目標方向(
     [SerializeField]
@@ -25,18 +23,31 @@ public class PCUnit : BaseUnit
     [SerializeField]
     private float _bodyHeight = 0.85f;
 
+    PCUnit(uint pcID)
+    {
+        _PCID = pcID;
+    }
+
+
     public static PCUnit newInstance(uint pcID)
     {
-        PCUnit instance = null;
-        GameObject obj = new GameObject(string.Format("PC_{0:0000}", pcID));
-        DontDestroyOnLoad(obj);        
-        instance = obj.AddComponent<PCUnit>();
-        instance._PCID = pcID;
-        
+        //PCUnit instance = null;
+        //GameObject obj = new GameObject(string.Format("PC_{0:0000}", pcID));
+        //DontDestroyOnLoad(obj);        
+        //instance = obj.AddComponent<PCUnit>();
+        //instance._PCID = pcID;
+
+        PCUnit instance = new PCUnit(pcID);
+        instance._gameObject = new GameObject(string.Format("PC_{0:0000}", pcID));
+        GameObject.DontDestroyOnLoad(instance._gameObject);
+
         return instance;
     }
 
-    void Update()
+    /// <summary>
+    /// 每個update要做的事情
+    /// </summary>
+    public void Update()
     {
         RotateToDestDirection();
     }
@@ -45,9 +56,10 @@ public class PCUnit : BaseUnit
     public void GenerateModel()
     {
         Common.DebugMsg("產生pc model");
-        _renderObject = Instantiate(ResourceStation.Instance.GetModelResource("Constructor")) as GameObject;
-        _renderObject.transform.parent = transform;
-        
+        //_renderObject = Instantiate(ResourceStation.Instance.GetModelResource("Constructor")) as GameObject;
+        //_renderObject.transform.parent = transform;
+        _renderObject = GameObject.Instantiate(ResourceStation.Instance.GetModelResource("Constructor")) as GameObject;
+        _renderObject.transform.parent = _gameObject.transform;
     }
 
     // TODO: 暫時，之後得改
@@ -82,8 +94,8 @@ public class PCUnit : BaseUnit
         _initDirectionDegree = GameMain.Instance.CameraManager.CurrentCamera.transform.eulerAngles.y;
         _destDirectionDegree = Common.ToArg(_initDirectionDegree + angle);
         Vector2 moveVector = Common.DegreeToVector2InModel(_destDirectionDegree);
-        Vector3 newPos = transform.position + _speed * Time.deltaTime * manitude * new Vector3(moveVector.x, 0, moveVector.y);
-
+        //Vector3 newPos = transform.position + _speed * Time.deltaTime * manitude * new Vector3(moveVector.x, 0, moveVector.y);
+        Vector3 newPos = Position + _speed * Time.deltaTime * manitude * new Vector3(moveVector.x, 0, moveVector.y);
         // 決定高度
         Vector3 groundPos = Common.Get3DGroundPos(newPos.x, newPos.z);
         if (groundPos.y > Mathf.NegativeInfinity)

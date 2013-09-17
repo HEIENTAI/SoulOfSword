@@ -25,13 +25,14 @@ public static class Common
     /// </summary>
     /// <param name="dataList">待轉換成字串的List</param>
     /// <param name="listName">List前面要加的名字</param>
+    /// <param name="firstIndex">第一筆資料的index</param>
     /// <returns>轉換後的字串</returns>
-    public static string ListDataToString(IList dataList, string listName)
+    public static string ListDataToString(IList dataList, string listName, int firstIndex = 0)
     {
         StringBuilder sb = new StringBuilder();
         if (dataList != null && dataList.Count > 0)
         {
-            for (int index = 0; index < dataList.Count; ++index)
+            for (int index = firstIndex; index < dataList.Count; ++index)
             {
                 sb.AppendFormat("{0}[{1}] =\n{2}", listName, index, dataList[index]);
             }

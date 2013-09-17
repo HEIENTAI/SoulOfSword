@@ -55,22 +55,18 @@ public class NPCUnitManager : MonoBehaviour
     /// 刪除npcID對應的NPC
     /// </summary>
     /// <param name="npcID">要刪除的NPC的ID</param>
-    void DeleteOneNPC(uint key)
+    public void DeleteOneNPC(uint key)
     {
-        if (!NPCUnits.ContainsKey(key)) 
+        if (!NPCUnits.ContainsKey(key) || NPCUnits[key] == null) 
         {
             Common.DebugMsgFormat("NPC不存在，請確認資料(key = {0})", key);
             return; 
         }
-        NPCUnit tempNPC = NPCUnits[key];
-        if (tempNPC != null)
-        {
-            Destroy(tempNPC.gameObject);
-        }
+        NPCUnits[key].Dispose();
         NPCUnits.Remove(key);
     }
 
-    void AddOneNPC(ushort npcID, ushort serialNumber)
+    public void AddOneNPC(ushort npcID, ushort serialNumber)
     {
         if (NPCUnits.ContainsKey(npcID))
         {
@@ -129,12 +125,9 @@ public class NPCUnitManager : MonoBehaviour
         StopAllCoroutines();
         if (NPCUnits != null)
         {
-            foreach (KeyValuePair<uint, NPCUnit> oneNPC in NPCUnits)
+            foreach (NPCUnit npc in NPCUnits.Values)
             {
-                if (oneNPC.Value != null)
-                {
-                    Destroy(oneNPC.Value.gameObject);
-                }
+                if (npc != null) { npc.Dispose(); }
             }
             NPCUnits.Clear();
         }
@@ -156,7 +149,7 @@ public class NPCUnitManager : MonoBehaviour
                 nearestNPC = npcUnit;
             }
         }
-        Common.DebugMsgFormat("nearestNPC = {0} dis = {1}", nearestNPC, minDisSqr);
+        Common.DebugMsgFormat("nearestNPC = {0} disSqr = {1}", nearestNPC, minDisSqr);
         if (nearestNPC != null && minDisSqr <= GlobalConst.EVENT_TRIGGER_DIS_SQR)
         {           
             GameMain.Instance.GameEventManager.CheckAndTriggerEvent(nearestNPC.EventMainID);

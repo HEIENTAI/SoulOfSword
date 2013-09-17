@@ -25,6 +25,8 @@ public class GameMain : MonoBehaviour
         }
     }
     #endregion
+
+    private GameGUIPanel _gameGUIPanel;
     /// <summary>
     /// 遊戲狀態
     /// </summary>
@@ -51,6 +53,12 @@ public class GameMain : MonoBehaviour
     {
         get { return _gameEventManager; }
     }
+    private GameEventState _gameEventState;
+    public GameEventState GameEventState
+    {
+        get { return _gameEventState; }
+    }
+
     private NPCUnitManager _npcUnitManager;
 
 
@@ -89,15 +97,15 @@ public class GameMain : MonoBehaviour
     /// </summary>
     void Start()
     {
-        _testRect = new Rect(170, 70, Screen.width - 170, Screen.height - 70);
+        _gameGUIPanel = GameGUIPanel.Instance;
 
         _gameState = GameNone.Instance;
         _dataTableManager = new DataTableManager();
         _sceneManager = new SceneManager();
         _playerInput = PlayerInput.Instance;
         _cameraManager = new CameraManager();
-        _npcUnitManager = new NPCUnitManager();
         _gameEventManager = new GameEventManager();
+        _gameEventState = new GameEventState();
 
         _npcUnitManager = NPCUnitManager.Instance;
 
@@ -108,15 +116,14 @@ public class GameMain : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (_gameState != null)
-            _gameState.Update();
-        if (_sceneManager.ChangeSceneComplete)
-            _cameraManager.UpdateMainCamera();
-        //_eventManager.CheckAndTriggerEvent();
+        if (_gameState != null) { _gameState.Update(); }
+        if (_sceneManager.ChangeSceneComplete) { _cameraManager.UpdateMainCamera(); }
+        if (_myRole != null) { _myRole.Update(); }
     }
 
     void OnDestroy()
     {
+        _gameGUIPanel = null;
         _gameState = null;
         _dataTableManager = null;
         _sceneManager = null;
@@ -127,6 +134,7 @@ public class GameMain : MonoBehaviour
         }
         _cameraManager = null;
         _gameEventManager = null;
+        _gameEventState = null;
         if (_npcUnitManager != null)
         {
             Destroy(_npcUnitManager);
@@ -147,7 +155,10 @@ public class GameMain : MonoBehaviour
     }
     #endregion
 
-
+    /// <summary>
+    /// 準備自己角色
+    /// </summary>
+    /// <param name="twoDPos">應該在的位置</param>
     public void PrepareMyRole(Vector2 twoDPos)
     {
         Common.DebugMsg("準備pc");
@@ -176,28 +187,5 @@ public class GameMain : MonoBehaviour
         PrepareMyRole(myRoleNewPos);
         _npcUnitManager.CreateAndShowAllNPCInCurrentScene(_sceneManager.CurrentSceneID);
         _cameraManager.RefreshSceneCameras();
-    }
-
-    Rect _testRect;
-    private Vector2 _testScrollPosition;
-    string _testString = string.Empty;
-    void OnGUI()
-    {
-        _testRect = GUI.Window(1, _testRect, TestWindow, "Debug Window");
-    }
-
-
-    public void TestWindow(int windowID)
-    {
-        _testScrollPosition = GUILayout.BeginScrollView(_testScrollPosition); // 加入捲軸
-        
-        List<GameEventData> test = _dataTableManager.GetAllEventData();
-        string filePath = GlobalConst.DIR_DATA_JSON + "EventData" + GlobalConst.EXT_JSONDATA;
-        _testString = string.Format("filePath = {1} test.count = {0} streamingAssetsPath = {2}\n", (test == null) ? 0 : test.Count, filePath, Application.streamingAssetsPath);
-        if (!System.IO.File.Exists(filePath)) { _testString = string.Format("{0}Can't find {1}\n",_testString, filePath); }
-        _testString = _testString + _dataTableManager.ToString();
-        GUILayout.TextArea(_testString, GUILayout.ExpandHeight(true)); // 自動伸縮捲軸
-        GUILayout.EndScrollView();
-        GUI.DragWindow();
     }
 }

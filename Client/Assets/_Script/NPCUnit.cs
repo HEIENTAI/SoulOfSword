@@ -45,13 +45,23 @@ public class NPCUnit : BaseUnit
         set;
     }
 
+    NPCUnit(ushort npcID, ushort serialNumber)
+    {
+        _NPCID = npcID;
+        _serialNumber = serialNumber;
+    }
+
     public static NPCUnit newInstance(ushort npcID, ushort serialNumber)
     {
-        NPCUnit instance = null;
-        GameObject obj = new GameObject(string.Format("NPC_{0:0000}_{1:000}", npcID, serialNumber));
-        instance = obj.AddComponent<NPCUnit>();
-        instance._NPCID = npcID;
-        instance._serialNumber = serialNumber;
+        //NPCUnit instance = null;
+        //GameObject obj = new GameObject(string.Format("NPC_{0:0000}_{1:000}", npcID, serialNumber));
+        //instance = obj.AddComponent<NPCUnit>();
+        //instance._NPCID = npcID;
+        //instance._serialNumber = serialNumber;
+
+        NPCUnit instance = new NPCUnit(npcID, serialNumber);
+        instance._gameObject = new GameObject(string.Format("NPC_{0:0000}_{1:000}", npcID, serialNumber));
+
         return instance;
     }
 
@@ -62,8 +72,11 @@ public class NPCUnit : BaseUnit
     public void GenerateModel(string modelName)
     {
         Common.DebugMsgFormat("modelName = {0}", modelName);
-        _renderObject = Instantiate(ResourceStation.Instance.GetModelResource(modelName)) as GameObject;
-        _renderObject.transform.parent = transform;
+        //_renderObject = Instantiate(ResourceStation.Instance.GetModelResource(modelName)) as GameObject;
+        //_renderObject.transform.parent = transform;
+
+        _renderObject = GameObject.Instantiate(ResourceStation.Instance.GetModelResource(modelName)) as GameObject;
+        _renderObject.transform.parent = _gameObject.transform;
     }
 
 }
