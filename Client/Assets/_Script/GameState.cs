@@ -101,10 +101,10 @@ public class GameEntered : IGameState
     {
         if (!isStartDataLoadDone)
         {
-            Common.DebugMsg("Update (Start data not load done)");
+            CommonFunction.DebugMsg("Update (Start data not load done)");
             if (GameMain.Instance.StartDataReady) 
             {
-                Common.DebugMsg("Update (Start data done)");
+                CommonFunction.DebugMsg("Update (Start data done)");
                 GameMain.Instance.SceneManager.ChangeScene(1, 67, 42);
                 isStartDataLoadDone = true;
             }

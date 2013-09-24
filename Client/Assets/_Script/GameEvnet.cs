@@ -214,7 +214,7 @@ class GameEventEffect_Transport : GameEventEffect
         if (para == null || para.Length < 3)
         {
             newSceneID = (ushort)0;
-            Common.DebugMsg("GameEventEffect_Transport建構式傳入參數有誤");
+            CommonFunction.DebugMsg("GameEventEffect_Transport建構式傳入參數有誤");
             return;
         }
         newSceneID = para[0] ?? (ushort)0;
@@ -233,7 +233,7 @@ class GameEventEffect_Transport : GameEventEffect
         }
         else
         {
-            Common.DebugMsgFormat("newSceneID == 0，不做事[x = {0} y = {1}]", x, y);
+            CommonFunction.DebugMsgFormat("newSceneID == 0，不做事[x = {0} y = {1}]", x, y);
         }
     }
 

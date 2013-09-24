@@ -13,29 +13,6 @@ public interface IStartDependency
 }
 
 /// <summary>
-/// 描述資料轉換用的資訊用的class，描述資料結構和檔名之間的對應
-/// </summary>
-public class DataConvertInfomation
-{
-    public System.Type DataType
-    {
-        get;
-        protected set;
-    }
-    public string FileName
-    {
-        get;
-        protected set;
-    }
-
-    public DataConvertInfomation(System.Type setDataType, string setFileName)
-    {
-        DataType = setDataType;
-        FileName = setFileName;
-    }
-}
-
-/// <summary>
 /// 事件檢查條件資料
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]

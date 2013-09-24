@@ -5,7 +5,7 @@ using System.Text;
 /// <summary>
 /// 共用method的class
 /// </summary>
-public static class Common
+public static class CommonFunction
 {
     public static void DebugMsg(string msg)
     {

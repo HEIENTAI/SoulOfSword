@@ -57,10 +57,10 @@ public class DataTableManager :IStartDependency
     {
         StringBuilder sb = new StringBuilder();
         sb.Append("DataTableManager:\n");
-        sb.Append(Common.ListDataToString(_allDataList[GlobalConst.DataLoadTag.Event] as IList, "_allDataList[Event]"));
-        sb.Append(Common.ListDataToString(_allDataList[GlobalConst.DataLoadTag.Plant] as IList, "_allDataList[Plant]"));
-        sb.Append(Common.ListDataToString(_allDataList[GlobalConst.DataLoadTag.Scene] as IList, "_allDataList[Scene]"));
-        sb.Append(Common.ListDataToString(_allDataList[GlobalConst.DataLoadTag.NPCTable] as IList, "_allDataList[NPCTable]"));
+        sb.Append(CommonFunction.ListDataToString(_allDataList[GlobalConst.DataLoadTag.Event] as IList, "_allDataList[Event]"));
+        sb.Append(CommonFunction.ListDataToString(_allDataList[GlobalConst.DataLoadTag.Plant] as IList, "_allDataList[Plant]"));
+        sb.Append(CommonFunction.ListDataToString(_allDataList[GlobalConst.DataLoadTag.Scene] as IList, "_allDataList[Scene]"));
+        sb.Append(CommonFunction.ListDataToString(_allDataList[GlobalConst.DataLoadTag.NPCTable] as IList, "_allDataList[NPCTable]"));
         sb.Append("End Of DataTableManager\n");
         return sb.ToString();
     }
@@ -76,7 +76,7 @@ public class DataTableManager :IStartDependency
                 ++index;
                 if (ds != ReadDataState.HaveLoad) 
                 {
-                    Common.DebugMsgFormat("index = {0} is false (ds = {1})", index, ds);
+                    CommonFunction.DebugMsgFormat("index = {0} is false (ds = {1})", index, ds);
                     return false; 
                 }
             }
@@ -96,13 +96,13 @@ public class DataTableManager :IStartDependency
         }
         catch (Exception e)
         {
-            Common.DebugMsgFormat("JSONDeserializeObject error!(type = {0})\n{1}\n{2}\n", refObj.GetType().ToString(), e.Message, e.StackTrace);
+            CommonFunction.DebugMsgFormat("JSONDeserializeObject error!(type = {0})\n{1}\n{2}\n", refObj.GetType().ToString(), e.Message, e.StackTrace);
             return false;
         }
     }
 
     // 得處理一下非同步狀況處理
-    IEnumerator Load(int tag, LoadAttribute loadAttr)
+    IEnumerator Load(int tag, EnumClassValue loadAttr)
     {
         string filePath = GlobalConst.DIR_DATA_JSON + loadAttr.FileName + GlobalConst.EXT_JSONDATA;
         string encodingStr = string.Empty;
@@ -118,7 +118,7 @@ public class DataTableManager :IStartDependency
         }
         try
         {
-            Common.DebugMsgFormat("讀取 {0} 的 Data", (GlobalConst.DataLoadTag)tag);
+            CommonFunction.DebugMsgFormat("讀取 {0} 的 Data", (GlobalConst.DataLoadTag)tag);
             object refObj = Activator.CreateInstance(typeof(List<>).MakeGenericType(loadAttr.DataType));
             bool isSuccess = DeserializeObject(encodingStr, ref refObj);
             if (isSuccess)
@@ -130,21 +130,21 @@ public class DataTableManager :IStartDependency
                 {
                     GameMain.Instance.GameEventManager.Initialize();
                 }
-                Common.DebugMsgFormat("{0}讀取成功", (GlobalConst.DataLoadTag)tag);
+                CommonFunction.DebugMsgFormat("{0}讀取成功", (GlobalConst.DataLoadTag)tag);
             }
             else
             {
                 DataState[tag] = ReadDataState.ReadError;
-                Common.DebugMsgFormat("{0}讀取失敗", (GlobalConst.DataLoadTag)tag);
+                CommonFunction.DebugMsgFormat("{0}讀取失敗", (GlobalConst.DataLoadTag)tag);
             }
 
 
         }
         catch (Exception e)
         {
-            Common.DebugMsgFormat("EventData Read Error:\n");
-            Common.DebugMsgFormat("StackTrace:\n{0}\n", e.StackTrace);
-            Common.DebugMsgFormat("Msg:\n{0}\n", e.Message);
+            CommonFunction.DebugMsgFormat("EventData Read Error:\n");
+            CommonFunction.DebugMsgFormat("StackTrace:\n{0}\n", e.StackTrace);
+            CommonFunction.DebugMsgFormat("Msg:\n{0}\n", e.Message);
             DataState[tag] = ReadDataState.ReadError;
         }
     }
@@ -156,13 +156,13 @@ public class DataTableManager :IStartDependency
     {
         int tag;
         GlobalConst.DataLoadTag dataLoadTag;
-        LoadAttribute loadAttr;
+        EnumClassValue loadAttr;
         Type enumType = typeof(GlobalConst.DataLoadTag);
         Array enumValues = Enum.GetValues(enumType);
         for (int i = 0; i < enumValues.Length; ++i)
         {
             dataLoadTag = (GlobalConst.DataLoadTag)enumValues.GetValue(i);
-            if (!LoadAttribute.GetAttribute(dataLoadTag, out loadAttr)) { continue; }
+            if (!EnumClassValue.GetAttribute(dataLoadTag, out loadAttr)) { continue; }
             tag = (int)dataLoadTag;
             if (tag >= 0 && tag < enumValues.Length)
             {

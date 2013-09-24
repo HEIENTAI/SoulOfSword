@@ -71,7 +71,7 @@ public class NPCUnit : BaseUnit
     /// <param name="modelName">模型名稱</param>
     public void GenerateModel(string modelName)
     {
-        Common.DebugMsgFormat("modelName = {0}", modelName);
+        CommonFunction.DebugMsgFormat("modelName = {0}", modelName);
         //_renderObject = Instantiate(ResourceStation.Instance.GetModelResource(modelName)) as GameObject;
         //_renderObject.transform.parent = transform;
 

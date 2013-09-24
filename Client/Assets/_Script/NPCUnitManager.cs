@@ -59,7 +59,7 @@ public class NPCUnitManager : MonoBehaviour
     {
         if (!NPCUnits.ContainsKey(key) || NPCUnits[key] == null) 
         {
-            Common.DebugMsgFormat("NPC不存在，請確認資料(key = {0})", key);
+            CommonFunction.DebugMsgFormat("NPC不存在，請確認資料(key = {0})", key);
             return; 
         }
         NPCUnits[key].Dispose();
@@ -70,21 +70,21 @@ public class NPCUnitManager : MonoBehaviour
     {
         if (NPCUnits.ContainsKey(npcID))
         {
-            Common.DebugMsgFormat("已有同一隻NPC，請確認資料(npcID = {0})", npcID);
+            CommonFunction.DebugMsgFormat("已有同一隻NPC，請確認資料(npcID = {0})", npcID);
             return;
         }
         NPCTableData npcTableData;
         bool haveNPCtableData = GameMain.Instance.DataTableManager.TryGetNPCTableData(npcID, out npcTableData);
         if (!haveNPCtableData)
         {
-            Common.DebugMsgFormat("該npcID（{0}）沒有NPCTableData，不做事", npcID);
+            CommonFunction.DebugMsgFormat("該npcID（{0}）沒有NPCTableData，不做事", npcID);
             return;
         }
         NPCUnit tempNPC = NPCUnit.newInstance(npcID, serialNumber);
         tempNPC.NPCName = npcTableData.NPCName;
         tempNPC.GenerateModel(npcTableData.ModelName);
         tempNPC.Scale = (float)npcTableData.Scale / 100.0f;
-        NPCUnits.Add(Common.GetNPCUnitKey(npcID, serialNumber), tempNPC);
+        NPCUnits.Add(CommonFunction.GetNPCUnitKey(npcID, serialNumber), tempNPC);
         
     }
 
@@ -98,17 +98,17 @@ public class NPCUnitManager : MonoBehaviour
         bool havePlantData = GameMain.Instance.DataTableManager.TryGetPlantDatasBySceneID(sceneID, out oneScenePlantDatas);
         if (!havePlantData)
         {
-            Common.DebugMsgFormat("該sceneID = {0} 取不到任何種植檔資料，不做事", sceneID);
+            CommonFunction.DebugMsgFormat("該sceneID = {0} 取不到任何種植檔資料，不做事", sceneID);
             return;
         }
         foreach (PlantData pd in oneScenePlantDatas)
         {
             AddOneNPC(pd.NPCID, pd.SerialNumber);
-            uint key = Common.GetNPCUnitKey(pd.NPCID, pd.SerialNumber);
+            uint key = CommonFunction.GetNPCUnitKey(pd.NPCID, pd.SerialNumber);
             if (NPCUnits.ContainsKey(key))
             {
                 NPCUnit tempNPC = NPCUnits[key];
-                tempNPC.Position = Common.Get3DGroundPos(pd.PosX, pd.PosY);
+                tempNPC.Position = CommonFunction.Get3DGroundPos(pd.PosX, pd.PosY);
                 tempNPC.Direction = Quaternion.Euler((float)pd.RotateX / 100.0f , (float)pd.RotateY / 100.0f, (float)pd.RotateZ / 100.0f);
                 tempNPC.Visible = (pd.IsVisible == 1);
                 tempNPC.DramaVisible = (pd.IsVisibleInDrama == 1);
@@ -149,7 +149,7 @@ public class NPCUnitManager : MonoBehaviour
                 nearestNPC = npcUnit;
             }
         }
-        Common.DebugMsgFormat("nearestNPC = {0} disSqr = {1}", nearestNPC, minDisSqr);
+        CommonFunction.DebugMsgFormat("nearestNPC = {0} disSqr = {1}", nearestNPC, minDisSqr);
         if (nearestNPC != null && minDisSqr <= GlobalConst.EVENT_TRIGGER_DIS_SQR)
         {           
             GameMain.Instance.GameEventManager.CheckAndTriggerEvent(nearestNPC.EventMainID);

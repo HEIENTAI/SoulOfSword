@@ -148,7 +148,7 @@ public class GameMain : MonoBehaviour
     {
         if (newGameState == _gameState)
             return;
-        Common.DebugMsg(string.Format("遊戲狀態改變 從 {0} -> {1}", _gameState, newGameState));
+        CommonFunction.DebugMsg(string.Format("遊戲狀態改變 從 {0} -> {1}", _gameState, newGameState));
         _gameState = null;
         _gameState = newGameState;
         _gameState.OnChangeIn();
@@ -161,13 +161,13 @@ public class GameMain : MonoBehaviour
     /// <param name="twoDPos">應該在的位置</param>
     public void PrepareMyRole(Vector2 twoDPos)
     {
-        Common.DebugMsg("準備pc");
+        CommonFunction.DebugMsg("準備pc");
         if (_myRole == null)
         {
             _myRole = PCUnit.newInstance(1);
             _myRole.GenerateModel();
         }
-        _myRole.Position = Common.Get3DGroundPos(twoDPos);
+        _myRole.Position = CommonFunction.Get3DGroundPos(twoDPos);
         _myRole.Direction = Quaternion.identity;
     }
 

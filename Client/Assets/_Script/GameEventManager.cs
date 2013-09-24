@@ -33,7 +33,7 @@ public class GameEventManager
         sb.Append("========= EventManager ============\n");
         foreach (ushort eventMainKey in _allEventDataInGame.Keys)
         {
-            sb.AppendFormat("MainKey = {0}\n{1}\n", eventMainKey, Common.ListDataToString(_allEventDataInGame[eventMainKey], string.Format("allEventDataInGame[{0}]", eventMainKey), 1));
+            sb.AppendFormat("MainKey = {0}\n{1}\n", eventMainKey, CommonFunction.ListDataToString(_allEventDataInGame[eventMainKey], string.Format("allEventDataInGame[{0}]", eventMainKey), 1));
         }
         sb.Append("===================================\n");
         return sb.ToString();
@@ -66,22 +66,22 @@ public class GameEventManager
             if (ged.CheckCondition != null)
             {
                 bool replaceOccur = _allEventDataInGame[ged.MainID][ged.SubID].AddOrReplaceCoditionData(ged.EffectID, ged.CheckCondition);
-                if (replaceOccur) { Common.DebugMsgFormat("Event({0}, {1}) 的 Condition {2} 發生資料被覆蓋！！", ged.MainID, ged.SubID, ged.EffectID); }
+                if (replaceOccur) { CommonFunction.DebugMsgFormat("Event({0}, {1}) 的 Condition {2} 發生資料被覆蓋！！", ged.MainID, ged.SubID, ged.EffectID); }
             }
             // 加入正效果
             if (ged.TrueEffect != null)
             {
                 bool replaceOccur = _allEventDataInGame[ged.MainID][ged.SubID].AddOrReplaceTrueEffectData(ged.EffectID, ged.TrueEffect);
-                if (replaceOccur) { Common.DebugMsgFormat("Event({0}, {1}) 的 TrueEffect {2} 發生資料被覆蓋！！", ged.MainID, ged.SubID, ged.EffectID); }
+                if (replaceOccur) { CommonFunction.DebugMsgFormat("Event({0}, {1}) 的 TrueEffect {2} 發生資料被覆蓋！！", ged.MainID, ged.SubID, ged.EffectID); }
             }
             if (ged.FalseEffect != null)
             {
                 bool replaceOccur = _allEventDataInGame[ged.MainID][ged.SubID].AddOrReplaceFalseEffectData(ged.EffectID, ged.FalseEffect);
-                if (replaceOccur) { Common.DebugMsgFormat("Event({0}, {1}) 的 FalseEffect {2} 發生資料被覆蓋！！", ged.MainID, ged.SubID, ged.EffectID); }
+                if (replaceOccur) { CommonFunction.DebugMsgFormat("Event({0}, {1}) 的 FalseEffect {2} 發生資料被覆蓋！！", ged.MainID, ged.SubID, ged.EffectID); }
             }
         }
         // TODO: 如果全部跑完，發覺有空的，可能得跳訊息？
-        Common.DebugMsgFormat("事件資料轉換完畢：\n{0}", this);
+        CommonFunction.DebugMsgFormat("事件資料轉換完畢：\n{0}", this);
     }
 
 
@@ -92,16 +92,16 @@ public class GameEventManager
     public void CheckAndTriggerEvent(ushort mainID)
     {
         _doingEvent = mainID;
-        Common.DebugMsgFormat("Doing Event {0}", mainID);
+        CommonFunction.DebugMsgFormat("Doing Event {0}", mainID);
         // 只有事件資料包含此主事件ID才執行
         if (_allEventDataInGame.ContainsKey(mainID) )
         {
             // 取得下一個執行的子事件ID
             ushort currentSubID = GameMain.Instance.GameEventState.GetNextEventSubID(mainID);
-            Common.DebugMsgFormat("get sub ID = {0}", currentSubID);
+            CommonFunction.DebugMsgFormat("get sub ID = {0}", currentSubID);
             // 如果取得的值超出資料範圍，就執行最後一個
             currentSubID = (currentSubID < _allEventDataInGame[mainID].Count) ? currentSubID : (ushort)(_allEventDataInGame[mainID].Count - 1);
-            Common.DebugMsgFormat("調整後的sub ID = {0}", currentSubID);
+            CommonFunction.DebugMsgFormat("調整後的sub ID = {0}", currentSubID);
             // 一次只觸發一個事件，事件觸發完畢就結束。
             _allEventDataInGame[mainID][currentSubID].CheckAndTriggerThisEvent();
             // 執行完畢將現在執行到的子事件ID記錄起來
@@ -156,9 +156,9 @@ class EventDataInGame
         sb.Append("========= EventDataInGame ============\n");
         sb.AppendFormat("主事件ID = {0}\n", MainID);
         sb.AppendFormat("子事件ID = {0}\n", SubID);
-        sb.Append(Common.ListDataToString(_conditionList, "_conditionList", 1));
-        sb.Append(Common.ListDataToString(_trueEffect, "_trueEffect", 1));
-        sb.Append(Common.ListDataToString(_falseEffect, "_falseEffect", 1));
+        sb.Append(CommonFunction.ListDataToString(_conditionList, "_conditionList", 1));
+        sb.Append(CommonFunction.ListDataToString(_trueEffect, "_trueEffect", 1));
+        sb.Append(CommonFunction.ListDataToString(_falseEffect, "_falseEffect", 1));
         sb.Append("===================================\n");
         return sb.ToString();
     }

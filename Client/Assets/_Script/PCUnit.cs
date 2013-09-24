@@ -55,7 +55,7 @@ public class PCUnit : BaseUnit
 
     public void GenerateModel()
     {
-        Common.DebugMsg("產生pc model");
+        CommonFunction.DebugMsg("產生pc model");
         //_renderObject = Instantiate(ResourceStation.Instance.GetModelResource("Constructor")) as GameObject;
         //_renderObject.transform.parent = transform;
         _renderObject = GameObject.Instantiate(ResourceStation.Instance.GetModelResource("Constructor")) as GameObject;
@@ -65,7 +65,7 @@ public class PCUnit : BaseUnit
     // TODO: 暫時，之後得改
     public void CrossAnimation(string animeName)
     {
-        Common.DebugMsg(string.Format("新動作為：{0}", animeName));
+        CommonFunction.DebugMsg(string.Format("新動作為：{0}", animeName));
         _renderObject.animation.CrossFade(animeName);
     }
 
@@ -88,16 +88,16 @@ public class PCUnit : BaseUnit
     {
         if (GameMain.Instance.CameraManager.CurrentCamera == null)
         {
-            Common.DebugMsg("現在場景主Camera設定中，不能移動");
+            CommonFunction.DebugMsg("現在場景主Camera設定中，不能移動");
             return;
         }
         _initDirectionDegree = GameMain.Instance.CameraManager.CurrentCamera.transform.eulerAngles.y;
-        _destDirectionDegree = Common.ToArg(_initDirectionDegree + angle);
-        Vector2 moveVector = Common.DegreeToVector2InModel(_destDirectionDegree);
+        _destDirectionDegree = CommonFunction.ToArg(_initDirectionDegree + angle);
+        Vector2 moveVector = CommonFunction.DegreeToVector2InModel(_destDirectionDegree);
         //Vector3 newPos = transform.position + _speed * Time.deltaTime * manitude * new Vector3(moveVector.x, 0, moveVector.y);
         Vector3 newPos = Position + _speed * Time.deltaTime * manitude * new Vector3(moveVector.x, 0, moveVector.y);
         // 決定高度
-        Vector3 groundPos = Common.Get3DGroundPos(newPos.x, newPos.z);
+        Vector3 groundPos = CommonFunction.Get3DGroundPos(newPos.x, newPos.z);
         if (groundPos.y > Mathf.NegativeInfinity)
         {
             Position = groundPos; 

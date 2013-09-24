@@ -163,7 +163,7 @@ public class GameGUIPanel : MonoBehaviour
         }
         if (GUILayout.Button("Delete NPC", GUILayout.Width(50)))
         {
-            NPCUnitManager.Instance.DeleteOneNPC(Common.GetNPCUnitKey(2, 1));
+            NPCUnitManager.Instance.DeleteOneNPC(CommonFunction.GetNPCUnitKey(2, 1));
         }
         GUILayout.EndVertical();
         GUI.DragWindow();

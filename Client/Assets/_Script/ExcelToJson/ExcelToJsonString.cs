@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿//using UnityEngine;
 using System;
 using System.IO;
 using System.Collections;
@@ -49,15 +49,21 @@ public class ExcelToJsonString
     /// <summary>
     /// 讀取excel檔案，不論是否有錯誤，回傳前都會關閉檔案
     /// </summary>
-    /// <param name="dci">資料轉換的資訊</param>
+    /// <param name="directoryPath">資料夾路徑</param>
+    /// <param name="dlt">資料轉換的資訊</param>
     /// <param name="needReadSite">轉出資料是哪方（Server/Client）需要</param>
     /// <param name="jsonString">對應輸出的json字串</param>
     /// <param name="debugString">偵錯字串</param>
     /// <returns>可能有的錯誤訊息</returns>
-    public ReadExcelToJsonStringError ReadExcelFile(string directoryPath, DataConvertInfomation dci, NeedReadSite needReadSite, out string jsonString, out string debugString)
+    public ReadExcelToJsonStringError ReadExcelFile(string directoryPath, GlobalConst.DataLoadTag dataLoadTag, NeedReadSite needReadSite, out string jsonString, out string debugString)
     {
+        string fileName = EnumClassValue.GetFileName(dataLoadTag);
+        Type dataType = EnumClassValue.GetClassType(dataLoadTag);
         jsonString = null;
-        ReadExcelToJsonStringError readExcelError = _excelToTable.OpenExcelFile(directoryPath, dci.FileName);
+        debugString = _debugMessage;
+        if (string.IsNullOrEmpty(fileName) || dataType == null) { return ReadExcelToJsonStringError.ENUM_ATTRIBUTE_ERROR; }
+
+        ReadExcelToJsonStringError readExcelError = _excelToTable.OpenExcelFile(directoryPath, fileName);
         if (readExcelError != ReadExcelToJsonStringError.NONE)
         {
             _excelToTable.Close();
@@ -73,12 +79,12 @@ public class ExcelToJsonString
             return readExcelError;
         }
         #region 確認各欄位和要被寫入的物件欄位Type有對應
-        object checkObject = Activator.CreateInstance(dci.DataType);
+        object checkObject = Activator.CreateInstance(dataType);
         List<string>.Enumerator tableTypeEnumerator = allType.GetEnumerator();
-        bool isConform = CheckObjectTypeCorrect(dci.DataType, checkObject, ref tableTypeEnumerator);
+        bool isConform = CheckObjectTypeCorrect(dataType, checkObject, ref tableTypeEnumerator);
         if (!isConform)
         {
-            _debugMessage = string.Format("{0}{1} 轉換失敗：表格與資料結構({2})內容不符\n", _debugMessage, dci.FileName, dci.DataType);
+            _debugMessage = string.Format("{0}{1} 轉換失敗：表格與資料結構({2})內容不符\n", _debugMessage, fileName, dataType);
             _excelToTable.Close();
             debugString = _debugMessage;
             return ReadExcelToJsonStringError.TABLE_TYPE_IS_NOT_CONFORM;
@@ -103,9 +109,9 @@ public class ExcelToJsonString
                 debugString = _debugMessage;
                 return ReadExcelToJsonStringError.HAS_EMPTY_ROW;
             }
-            object obj = Activator.CreateInstance(dci.DataType);
+            object obj = Activator.CreateInstance(dataType);
             List<string>.Enumerator rowDataEnumerator = tableRowData.GetEnumerator();
-            ReadExcelToJsonStringError error = GetObjectTypeDataFromExcel(dci.DataType, ref obj, ref rowDataEnumerator);
+            ReadExcelToJsonStringError error = GetObjectTypeDataFromExcel(dataType, ref obj, ref rowDataEnumerator);
             if (error != ReadExcelToJsonStringError.NONE)
             {
                 _excelToTable.Close();
@@ -140,7 +146,7 @@ public class ExcelToJsonString
     /// <returns>是否有對應</returns>
     bool CheckObjectTypeCorrect(Type checkType, object checkObject, ref List<string>.Enumerator tableTypeEnumerator)
     {
-        Common.DebugMsgFormat("type is {0}", checkType);
+        CommonFunction.DebugMsgFormat("type is {0}", checkType);
         FieldInfo[] allFieldInfo = checkType.GetFields(BindingFlags.Public | BindingFlags.Instance);
         bool isConform = true;
 
@@ -165,7 +171,7 @@ public class ExcelToJsonString
             }
             if (!isConform)
             {
-                Common.DebugMsgFormat("type = {0} excelType = {1}", checkType, tableTypeEnumerator.Current);
+                CommonFunction.DebugMsgFormat("type = {0} excelType = {1}", checkType, tableTypeEnumerator.Current);
                 return false;
             }
         }
@@ -181,10 +187,10 @@ public class ExcelToJsonString
     /// <returns>是否有對應</returns>
     bool CheckArrayTypeCorrect(Type checkType, object checkObject, ref List<string>.Enumerator tableTypeEnumerator)
     {
-        Common.DebugMsgFormat("type is {0}", checkType);
+        CommonFunction.DebugMsgFormat("type is {0}", checkType);
         if (!checkType.IsArray || !(checkObject is Array)) 
         {
-            Common.DebugMsgFormat("type = {0} excelType = {1}", checkType, tableTypeEnumerator.Current);
+            CommonFunction.DebugMsgFormat("type = {0} excelType = {1}", checkType, tableTypeEnumerator.Current);
             return false; 
         }
 
@@ -211,7 +217,7 @@ public class ExcelToJsonString
             }
             if (!isConform)
             {
-                Common.DebugMsgFormat("type = {0} excelType = {1}", checkType, tableTypeEnumerator.Current);
+                CommonFunction.DebugMsgFormat("type = {0} excelType = {1}", checkType, tableTypeEnumerator.Current);
                 return false;
             }
         }
@@ -241,14 +247,14 @@ public class ExcelToJsonString
             }
             else  // 沒對應到正確的基本型態
             {
-                Common.DebugMsgFormat("base error : Type = {1} excelType = {2}", _debugMessage, realType, tableTypeEnumerator.Current);
+                CommonFunction.DebugMsgFormat("base error : Type = {1} excelType = {2}", _debugMessage, realType, tableTypeEnumerator.Current);
                 _debugMessage = string.Format("{0} base error : Type = {1} excelType = {2}", _debugMessage, realType, tableTypeEnumerator.Current);
                 return false;
             }
         }
         else  // 不是基本四型態之一的話直接跳沒對應
         {
-            Common.DebugMsgFormat("not base error : Type = {1}", _debugMessage, realType);
+            CommonFunction.DebugMsgFormat("not base error : Type = {1}", _debugMessage, realType);
             _debugMessage = string.Format("{0} not base error : Type = {1}", _debugMessage, realType);
             return false;
         }
@@ -403,7 +409,7 @@ public class ExcelToJsonString
                 }
                 catch (Exception e)
                 {
-                    Common.DebugMsgFormat("取得基本型別時出錯\n{0}\n{1}", e.Message, e.StackTrace);
+                    CommonFunction.DebugMsgFormat("取得基本型別時出錯\n{0}\n{1}", e.Message, e.StackTrace);
                     retObj = null;
                     return ReadExcelToJsonStringError.GET_BASE_TYPE_ERROR;
                 }

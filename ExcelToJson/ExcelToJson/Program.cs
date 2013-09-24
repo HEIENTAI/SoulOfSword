@@ -22,8 +22,8 @@ namespace ExcelToJson
 
             TransferFilesFromExcelToJson();
 
-            Common.DebugMsg(debugMessage);
-            Common.DebugMsg(fileListMessage);
+            CommonFunction.DebugMsg(debugMessage);
+            CommonFunction.DebugMsg(fileListMessage);
             Console.Write("按下Enter鈕結束。");
             Console.Read();
         }
@@ -40,30 +40,34 @@ namespace ExcelToJson
             ExcelToJsonString tableToJson = new ExcelToJsonString();
             int successFileCount = 0;
 
-            foreach (DataConvertInfomation dci in GlobalConst.DataConvertList)
+            Array dataLoadTags = Enum.GetValues(typeof(GlobalConst.DataLoadTag));
+            foreach (GlobalConst.DataLoadTag dataLoadTag in dataLoadTags)
             {
                 string dataJsonString;
-                ReadExcelToJsonStringError error = tableToJson.ReadExcelFile(exceDirectorylPath, dci, NeedReadSite.CLIENT, out dataJsonString, out debugMessage);
+                string fileName = EnumClassValue.GetFileName(dataLoadTag);
+                System.Type dataType = EnumClassValue.GetClassType(dataLoadTag);
+
+                ReadExcelToJsonStringError error = tableToJson.ReadExcelFile(exceDirectorylPath, dataLoadTag, NeedReadSite.CLIENT, out dataJsonString, out debugMessage);
                 if (error == ReadExcelToJsonStringError.NONE)
                 {
                     #region JsonString To File
-                    string filePath = jsonDirectoryPath + Path.DirectorySeparatorChar + dci.FileName + JSON_EXT;
+                    string filePath = jsonDirectoryPath + Path.DirectorySeparatorChar + fileName + JSON_EXT;
                     using (StreamWriter sw = new StreamWriter(filePath))
                     {
                         sw.Write(dataJsonString);
                     }
                     #endregion
                     debugMessage = string.Format("{0}將 {1} 資料轉換成json成功\n", debugMessage, filePath);
-                    fileListMessage = string.Format("{0}{1}：O\n", fileListMessage, dci.FileName);
+                    fileListMessage = string.Format("{0}{1}：O\n", fileListMessage, fileName);
                     ++successFileCount;
                 }
                 else
                 {
-                    debugMessage = string.Format("{0}取得{1}內資料失敗\n", debugMessage, dci.FileName);
-                    fileListMessage = string.Format("{0}{1}：X\n", fileListMessage, dci.FileName);
+                    debugMessage = string.Format("{0}取得{1}內資料失敗\n", debugMessage, fileName);
+                    fileListMessage = string.Format("{0}{1}：X\n", fileListMessage, fileName);
                 }
             }
-            debugMessage = string.Format("{0}共轉換 {1}個檔案成功，{2}個檔案失敗\n", debugMessage, successFileCount, GlobalConst.DataConvertList.Length - successFileCount);
+            debugMessage = string.Format("{0}共轉換 {1}個檔案成功，{2}個檔案失敗\n", debugMessage, successFileCount, dataLoadTags.Length - successFileCount);
         }
     }
 }

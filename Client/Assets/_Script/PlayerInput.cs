@@ -46,7 +46,7 @@ public class PlayerInput : MonoBehaviour
     {
         if (move.joystickName == "PlayerInputJoystick")
         {
-            Common.DebugMsg("JoyStick移動結束");            
+            CommonFunction.DebugMsg("JoyStick移動結束");            
             GameMain.Instance.MyRole.CrossAnimation("idle");
             GameMain.Instance.MyRole.StopMove();
         }
@@ -58,15 +58,15 @@ public class PlayerInput : MonoBehaviour
             if (!GameMain.Instance.SceneManager.ChangeSceneComplete)
             {
                 
-                Common.DebugMsgFormat("換場中，不能移動！！");
+                CommonFunction.DebugMsgFormat("換場中，不能移動！！");
                 return;
             }
             if (GameMain.Instance.GameEventManager.DoingEvent)
             {
-                Common.DebugMsgFormat("事件中，不能移動");
+                CommonFunction.DebugMsgFormat("事件中，不能移動");
                 return;
             }
-            Common.DebugMsg(string.Format("JoyStick移動中 ({0})", move.joystickAxis));
+            CommonFunction.DebugMsg(string.Format("JoyStick移動中 ({0})", move.joystickAxis));
             //
 
             if (move.joystickAxis.sqrMagnitude >= 0.25)

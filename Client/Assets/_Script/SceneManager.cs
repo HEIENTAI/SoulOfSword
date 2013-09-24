@@ -87,7 +87,7 @@ public class SceneManager
         bool haveNextSceneData = GameMain.Instance.DataTableManager.TryGetOneSceneData(newSceneID, out nextSceneData);
         if (!haveNextSceneData)
         {
-            Common.DebugMsgFormat("場景編號 {0} 不存在，不做事", newSceneID);
+            CommonFunction.DebugMsgFormat("場景編號 {0} 不存在，不做事", newSceneID);
             yield break;
         }
 

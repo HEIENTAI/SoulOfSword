@@ -35,27 +35,19 @@ public class GlobalConst
 
     #endregion
 
-    public static readonly DataConvertInfomation[] DataConvertList = 
-    {
-        new DataConvertInfomation(typeof(GameEventData), FILENAME_EVENT), // 遊戲事件資料
-        new DataConvertInfomation(typeof(PlantData), FILENAME_PLANT),     // 種植檔資料
-        new DataConvertInfomation(typeof(SceneData), FILENAME_SCENE),     // 場景資料
-        new DataConvertInfomation(typeof(NPCTableData), FILENAME_NPC_TABLE), // NPC表格資料
-    };
-
     public enum DataLoadTag
     {
-        [LoadAttribute(FILENAME_EVENT, typeof(GameEventData))]        Event = 0, // 遊戲事件資料表
-        [LoadAttribute(FILENAME_PLANT, typeof(PlantData))]            Plant = 1, // 種植檔
-        [LoadAttribute(FILENAME_SCENE, typeof(SceneData))]            Scene = 2, // 場景
-        [LoadAttribute(FILENAME_NPC_TABLE, typeof(NPCTableData))]     NPCTable = 3, // NPC表格
+        [EnumClassValue(FILENAME_EVENT, typeof(GameEventData))]        Event = 0, // 遊戲事件資料表
+        [EnumClassValue(FILENAME_PLANT, typeof(PlantData))]            Plant = 1, // 種植檔
+        [EnumClassValue(FILENAME_SCENE, typeof(SceneData))]            Scene = 2, // 場景
+        [EnumClassValue(FILENAME_NPC_TABLE, typeof(NPCTableData))]     NPCTable = 3, // NPC表格
     };
 }
 
 /// <summary>
 /// 資源載入的屬性
 /// </summary>
-public class LoadAttribute : System.Attribute
+public class EnumClassValue : System.Attribute
 {
     public string FileName
     {
@@ -69,7 +61,7 @@ public class LoadAttribute : System.Attribute
         protected set;
     }
 
-    public LoadAttribute(string fileName, Type dataType)
+    public EnumClassValue(string fileName, Type dataType)
     {
         FileName = fileName;
         DataType = dataType;
@@ -78,26 +70,20 @@ public class LoadAttribute : System.Attribute
     public static string GetFileName(Enum value)
     {
         string retFileName = default(string);
-        LoadAttribute enumType;
-        if (GetAttribute(value, out enumType))
-        {
-            retFileName = enumType.FileName;
-        }
+        EnumClassValue enumType;
+        if (GetAttribute(value, out enumType)) { retFileName = enumType.FileName; }
         return retFileName;
     }
 
-    public static Type GetDataType(Enum value)
+    public static Type GetClassType(Enum value)
     {
         Type retDataType = default(Type);
-        LoadAttribute enumType;
-        if (GetAttribute(value, out enumType))
-        {
-            retDataType = enumType.DataType;
-        }
+        EnumClassValue enumType;
+        if (GetAttribute(value, out enumType)) { retDataType = enumType.DataType; }
         return retDataType;
     }
 
-    public static bool GetAttribute<T>(Enum value, out T outAttr)
+    public static bool GetAttribute<T>(Enum value, out T outAttr) where T : System.Attribute
     {
         outAttr = default(T);
         System.Type curType = value.GetType();
