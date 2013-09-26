@@ -206,18 +206,17 @@ namespace NUnitTestForExcelToJson
             _excelToJsonString = null;
         }
 
-        //[Test]
-        //[Category("Test Read Excel File And Transfer Data")]
-        //public void TestReadStartTokenNotFirstRowTableToJsonString()
-        //{
-        //    string jsonString = string.Empty;
-        //    string debugString = string.Empty;
-        //    Console.WriteLine(string.Format("path = {0}", exceDirectorylPath));
-        //    DataConvertInfomation dci = new DataConvertInfomation(typeof(EventData), "EventData_StartTokenNotFirstRow");
-
-        //    ReadExcelToJsonStringError error = _excelToJsonString.ReadExcelFile(exceDirectorylPath, dci, NeedReadSite.CLIENT, out jsonString, out debugString);
-        //    Assert.AreEqual(ReadExcelToJsonStringError.NONE, error);
-        //}
+        [Test]
+        [Category("Test Read Excel File And Transfer Data")]
+        public void TestReadStartTokenNotFirstRowTableToJsonString()
+        {
+            string jsonString = string.Empty;
+            string debugString = string.Empty;
+            Console.WriteLine(string.Format("path = {0}", exceDirectorylPath));
+            EnumClassValue test = new EnumClassValue(typeof(EventData), "EventData_StartTokenNotFirstRow");
+            ReadExcelToJsonStringError error = _excelToJsonString.ReadExcelFile(exceDirectorylPath, test, NeedReadSite.CLIENT, out jsonString, out debugString);
+            Assert.AreEqual(ReadExcelToJsonStringError.NONE, error);
+        }
 
         //[Test]
         //[Category("Test Read Excel File And Transfer Data")]

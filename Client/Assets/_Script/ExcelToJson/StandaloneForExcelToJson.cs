@@ -113,17 +113,20 @@ public class StandaloneForExcelToJson : MonoBehaviour
         {
             string dataJsonString;
             string tempDebugMsg;
-            string fileName = EnumClassValue.GetFileName(dataLoadTag);
-            System.Type dataType = EnumClassValue.GetClassType(dataLoadTag);
+            EnumClassValue dataConvertInfo;
+            bool isSuccessGetAttr = CommonFunction.GetAttribute<EnumClassValue>(dataLoadTag, out dataConvertInfo);
+            if (!isSuccessGetAttr) { continue; }
+            string fileName = dataConvertInfo.FileName;
+            System.Type dataType = dataConvertInfo.DataType;
 
-            ReadExcelToJsonStringError error = excelToJsonString.ReadExcelFile(excelDirectoryPath, dataLoadTag, NeedReadSite.CLIENT, out dataJsonString, out tempDebugMsg);
+            ReadExcelToJsonStringError error = excelToJsonString.ReadExcelFile(excelDirectoryPath, dataConvertInfo, NeedReadSite.CLIENT, out dataJsonString, out tempDebugMsg);
             _debugMessage += tempDebugMsg;
             if (error == ReadExcelToJsonStringError.NONE)
             {
                 string filePath = jsonDirectoryPath + Path.DirectorySeparatorChar + fileName + JSON_EXT;
                 WriteJsonStringToFile(dataJsonString, filePath);
 
-                _debugMessage = string.Format("{0}將 {1} 資料轉換成json成功\n", _debugMessage, filePath);
+                _debugMessage = string.Format("{0}將 {1} 資料轉換成json成功\n", _debugMessage, excelDirectoryPath + Path.DirectorySeparatorChar + fileName + ".xlsx");
                 _fileListMessage = string.Format("{0}{1}：O\n", _fileListMessage, fileName);
                 ++successFileCount;
             }

@@ -57,10 +57,13 @@ namespace ExcelToJson
         /// <param name="jsonString">對應輸出的json字串</param>
         /// <param name="debugString">偵錯字串</param>
         /// <returns>可能有的錯誤訊息</returns>
-        public ReadExcelToJsonStringError ReadExcelFile(string directoryPath, GlobalConst.DataLoadTag dataLoadTag, NeedReadSite needReadSite, out string jsonString, out string debugString)
+        //public ReadExcelToJsonStringError ReadExcelFile(string directoryPath, GlobalConst.DataLoadTag dataLoadTag, NeedReadSite needReadSite, out string jsonString, out string debugString)
+        public ReadExcelToJsonStringError ReadExcelFile(string directoryPath, EnumClassValue dataConvertInfo, NeedReadSite needReadSite, out string jsonString, out string debugString)
         {
-            string fileName = EnumClassValue.GetFileName(dataLoadTag);
-            Type dataType = EnumClassValue.GetClassType(dataLoadTag);
+            //string fileName = EnumClassValue.GetFileName(dataLoadTag);
+            string fileName = dataConvertInfo.FileName;
+            //Type dataType = EnumClassValue.GetClassType(dataLoadTag);
+            Type dataType = dataConvertInfo.ClassType;
 
             jsonString = null;
             debugString = _debugMessage;

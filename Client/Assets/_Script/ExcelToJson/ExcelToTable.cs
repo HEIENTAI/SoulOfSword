@@ -228,9 +228,12 @@ public class ExcelToTable
 
         try
         {
-            IWorkbook workBook = WorkbookFactory.Create(filePath);
-            _sheet = workBook.GetSheetAt(0);
-            workBook = null;
+            using (FileStream fs = File.Open(filePath, FileMode.Open, FileAccess.Read))
+            {
+                IWorkbook workbook = WorkbookFactory.Create(fs);
+                _sheet = workbook.GetSheetAt(0);
+                workbook = null;
+            }
         }
         catch { return ReadExcelToJsonStringError.FILE_OPEN_ERROR; }
         return ReadExcelToJsonStringError.NONE;

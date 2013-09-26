@@ -44,10 +44,15 @@ namespace ExcelToJson
             foreach (GlobalConst.DataLoadTag dataLoadTag in dataLoadTags)
             {
                 string dataJsonString;
-                string fileName = EnumClassValue.GetFileName(dataLoadTag);
-                System.Type dataType = EnumClassValue.GetClassType(dataLoadTag);
+                EnumClassValue dataConvertInfo;
+                bool isSuccesGetAttr = CommonFunction.GetAttribute<EnumClassValue>(dataLoadTag, out dataConvertInfo);
+                if (!isSuccesGetAttr) { continue; }
+                
+                string fileName = dataConvertInfo.FileName;
+                System.Type dataType = dataConvertInfo.ClassType;
 
-                ReadExcelToJsonStringError error = tableToJson.ReadExcelFile(exceDirectorylPath, dataLoadTag, NeedReadSite.CLIENT, out dataJsonString, out debugMessage);
+                ReadExcelToJsonStringError error = tableToJson.ReadExcelFile(exceDirectorylPath, dataConvertInfo, NeedReadSite.CLIENT, out dataJsonString, out debugMessage);
+                
                 if (error == ReadExcelToJsonStringError.NONE)
                 {
                     #region JsonString To File
@@ -57,7 +62,7 @@ namespace ExcelToJson
                         sw.Write(dataJsonString);
                     }
                     #endregion
-                    debugMessage = string.Format("{0}將 {1} 資料轉換成json成功\n", debugMessage, filePath);
+                    debugMessage = string.Format("{0}將 {1} 資料轉換成json成功\n", debugMessage, exceDirectorylPath + Path.DirectorySeparatorChar + fileName + ".xlsx");
                     fileListMessage = string.Format("{0}{1}：O\n", fileListMessage, fileName);
                     ++successFileCount;
                 }

@@ -16,7 +16,6 @@ using NPOI.SS.UserModel;
 //using NPOI.HSSF.Extractor;
 
 
-
 namespace ExcelToJson
 {
     /// <summary>
@@ -74,7 +73,6 @@ namespace ExcelToJson
         readonly string NEED_READ_SITE_IS_SERVER = "S"; // 「只有Server需要讀」的欄位識別字
         readonly string NEED_READ_SITE_IS_CLIENT = "C"; // 「只有Client需要讀」的欄位識別字
         readonly string NEED_READ_SITE_IS_NONE = "N";   // 「都不需要讀」的欄位識別字
-
 
         ISheet _sheet = null;
         int _currentSheetRowNum;
@@ -207,9 +205,12 @@ namespace ExcelToJson
 
             try
             {
-                IWorkbook workBook = WorkbookFactory.Create(filePath);
-                _sheet = workBook.GetSheetAt(0);
-                workBook = null;
+                using (FileStream fs = File.Open(filePath, FileMode.Open, FileAccess.Read))
+                {
+                    IWorkbook workbook = WorkbookFactory.Create(fs);
+                    _sheet = workbook.GetSheetAt(0);
+                    workbook = null;
+                }
             }
             catch { return ReadExcelToJsonStringError.FILE_OPEN_ERROR; }
             return ReadExcelToJsonStringError.NONE;

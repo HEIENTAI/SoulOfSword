@@ -34,6 +34,32 @@ namespace ExcelToJson
         {
             Console.WriteLine(string.Format(format, args));
         }
+
+        #region 列舉相關
+        /// <summary>
+        /// 取得Enum的Attribute
+        /// </summary>
+        /// <typeparam name="T">要取得的Attribute型別</typeparam>
+        /// <param name="value">列舉值</param>
+        /// <param name="outAttr">輸出的Attribute</param>
+        /// <returns>是否有成功取得</returns>
+        public static bool GetAttribute<T>(System.Enum value, out T outAttr) where T : System.Attribute
+        {
+            outAttr = default(T);
+            System.Type curType = value.GetType();
+            System.Reflection.FieldInfo curFieldInfo = curType.GetField(value.ToString());
+            if (curFieldInfo != null)
+            {
+                T[] curAttrs = curFieldInfo.GetCustomAttributes(typeof(T), false) as T[];
+                if (curAttrs != null && curAttrs.Length > 0)
+                {
+                    outAttr = curAttrs[0];
+                    return true;
+                }
+            }
+            return false;
+        }
+        #endregion
     }
     #region GlobalDeclaration
     /// <summary>
