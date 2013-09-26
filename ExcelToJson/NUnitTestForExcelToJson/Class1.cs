@@ -225,7 +225,6 @@ namespace NUnitTestForExcelToJson
         //    string jsonString = string.Empty;
         //    string debugString = string.Empty;
         //    Console.WriteLine(string.Format("path = {0}", exceDirectorylPath));
-        //    //ReadExcelToJsonStringError error = _excelToJsonString.ReadExcelFile(exceDirectorylPath, GlobalConst.DataConvertList[0], NeedReadSite.CLIENT, out jsonString, out debugString);
         //    ReadExcelToJsonStringError error = _excelToJsonString.ReadExcelFile(exceDirectorylPath, GlobalConst.DataLoadTag.Event, NeedReadSite.CLIENT, out jsonString, out debugString);
         //    Assert.AreEqual(ReadExcelToJsonStringError.NONE, error);
         //    List<EventData> ans = new List<EventData>(2);
@@ -347,7 +346,7 @@ namespace NUnitTestForExcelToJson
         //    temp1.FalseEffect[2] = tempED;
         //    ans.Add(temp1);
         //    Assert.AreEqual(_excelToJsonString.ObjectToJsonString(ans), jsonString);
-        //    DataConvertInfomation dci = new DataConvertInfomation(typeof(EventData), "EventData_TypeError");
+        //    DataConvertInfomation dci = new DataConvertInfomation(typeof(EventData), "EventData_TypeError");            
         //    error = _excelToJsonString.ReadExcelFile(exceDirectorylPath, dci, NeedReadSite.CLIENT, out jsonString, out debugString);
         //    Assert.AreEqual(ReadExcelToJsonStringError.TABLE_TYPE_IS_NOT_CONFORM, error);
         //}

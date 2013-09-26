@@ -47,7 +47,19 @@ namespace ExcelToJson
             settings.CheckAdditionalContent = false;
             return Newtonsoft.Json.JsonConvert.SerializeObject(ob, settings);
         }
-
+        #region Excel讀取
+        /// <summary>
+        /// 處理讀取完excel檔案（不論成功還失敗）需要做的事情
+        /// </summary>
+        /// <param name="objDataForExcel">從excel取得的物件資料</param>
+        /// <param name="jsonString">對應objDataForExcel要轉換成的json字串</param>
+        /// <param name="debugString">偵錯字串</param>
+        public void ReadExcelFileEnd(object objDataForExcel, out string jsonString, out string debugString)
+        {
+            jsonString = (objDataForExcel == null) ? string.Empty : ObjectToJsonString(objDataForExcel);
+            debugString = _debugMessage;
+            _excelToTable.Close();
+        }        
         /// <summary>
         /// 讀取excel檔案，不論是否有錯誤，回傳前都會關閉檔案
         /// </summary>
@@ -57,41 +69,37 @@ namespace ExcelToJson
         /// <param name="jsonString">對應輸出的json字串</param>
         /// <param name="debugString">偵錯字串</param>
         /// <returns>可能有的錯誤訊息</returns>
-        //public ReadExcelToJsonStringError ReadExcelFile(string directoryPath, GlobalConst.DataLoadTag dataLoadTag, NeedReadSite needReadSite, out string jsonString, out string debugString)
         public ReadExcelToJsonStringError ReadExcelFile(string directoryPath, EnumClassValue dataConvertInfo, NeedReadSite needReadSite, out string jsonString, out string debugString)
         {
-            //string fileName = EnumClassValue.GetFileName(dataLoadTag);
-            string fileName = dataConvertInfo.FileName;
-            //Type dataType = EnumClassValue.GetClassType(dataLoadTag);
-            Type dataType = dataConvertInfo.ClassType;
+            if (string.IsNullOrEmpty(dataConvertInfo.FileName) || dataConvertInfo.ClassType == null)
+            {
+                ReadExcelFileEnd(null, out jsonString, out debugString);
+                return ReadExcelToJsonStringError.ENUM_ATTRIBUTE_ERROR;
+            }
 
-            jsonString = null;
-            debugString = _debugMessage;
-            if (string.IsNullOrEmpty(fileName) || dataType == null) { return ReadExcelToJsonStringError.ENUM_ATTRIBUTE_ERROR; }
-            ReadExcelToJsonStringError readExcelError = _excelToTable.OpenExcelFile(directoryPath, fileName);
+            ReadExcelToJsonStringError readExcelError = _excelToTable.OpenExcelFile(directoryPath, dataConvertInfo.FileName);
             if (readExcelError != ReadExcelToJsonStringError.NONE) 
             {
-                _excelToTable.Close();
-                debugString = _debugMessage;
+                ReadExcelFileEnd(null, out jsonString, out debugString);
                 return readExcelError; 
             }
+
             List<string> allType;
             readExcelError = _excelToTable.CheckAndReadTableHeader(needReadSite, out allType);
             if (readExcelError != ReadExcelToJsonStringError.NONE) 
             {
-                _excelToTable.Close();
-                debugString = _debugMessage;
+                ReadExcelFileEnd(null, out jsonString, out debugString);
                 return readExcelError; 
             }
+
             #region 確認各欄位和要被寫入的物件欄位Type有對應
-            object checkObject = Activator.CreateInstance(dataType);
+            object checkObject = Activator.CreateInstance(dataConvertInfo.ClassType);
             List<string>.Enumerator tableTypeEnumerator = allType.GetEnumerator();
-            bool isConform = CheckObjectTypeCorrect(dataType, checkObject, ref tableTypeEnumerator);
+            bool isConform = CheckObjectTypeCorrect(dataConvertInfo.ClassType, checkObject, ref tableTypeEnumerator);
             if (!isConform)
             {
-                _debugMessage = string.Format("{0}{1} 轉換失敗：表格與資料結構({2})內容不符\n", _debugMessage, fileName, dataType);
-                _excelToTable.Close();
-                debugString = _debugMessage;
+                _debugMessage = string.Format("{0}{1} 轉換失敗：表格與資料結構({2})內容不符\n", _debugMessage, dataConvertInfo.FileName, dataConvertInfo.ClassType);
+                ReadExcelFileEnd(null, out jsonString, out debugString);
                 return ReadExcelToJsonStringError.TABLE_TYPE_IS_NOT_CONFORM;
             }
             #endregion
@@ -110,17 +118,15 @@ namespace ExcelToJson
                 }
                 if (CheckEmptyRow(tableRowData))
                 {
-                    _excelToTable.Close();
-                    debugString = _debugMessage;
+                    ReadExcelFileEnd(null, out jsonString, out debugString);
                     return ReadExcelToJsonStringError.HAS_EMPTY_ROW;
                 }
-                object obj = Activator.CreateInstance(dataType);
+                object obj = Activator.CreateInstance(dataConvertInfo.ClassType);
                 List<string>.Enumerator rowDataEnumerator = tableRowData.GetEnumerator();
-                ReadExcelToJsonStringError error = GetObjectTypeDataFromExcel(dataType, ref obj, ref rowDataEnumerator);
+                ReadExcelToJsonStringError error = GetObjectTypeDataFromExcel(dataConvertInfo.ClassType, ref obj, ref rowDataEnumerator);
                 if (error != ReadExcelToJsonStringError.NONE)
                 {
-                    _excelToTable.Close();
-                    debugString = _debugMessage;
+                    ReadExcelFileEnd(null, out jsonString, out debugString);
                     return error;
                 }
                 allData.Add(obj);
@@ -130,17 +136,14 @@ namespace ExcelToJson
 
             if (!hasEOR)
             {
-                _excelToTable.Close();
-                debugString = _debugMessage;
+                ReadExcelFileEnd(null, out jsonString, out debugString);
                 return ReadExcelToJsonStringError.CANT_FIND_END_OF_ROW_TOKEN;
             }
             #endregion
-            _excelToTable.Close();
-
-            jsonString = ObjectToJsonString(allData);
-            debugString = _debugMessage;
+            ReadExcelFileEnd(allData, out jsonString, out debugString);
             return ReadExcelToJsonStringError.NONE;
         }
+        #endregion
         #region 確認型別對應
         /// <summary>
         /// 確認excel表格內定義的Type是否和給予的物件資料結構有對應
