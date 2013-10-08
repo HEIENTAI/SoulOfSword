@@ -17,7 +17,7 @@ namespace ExcelToJson
         public enum DataLoadTag
         {
             [EnumClassValue(typeof(EventData), FILENAME_EVENT)]
-            Event = 0, // 事件
+            Event = 0, // 事件            
         }
     }
     public class CommonFunction
@@ -147,6 +147,25 @@ namespace ExcelToJson
             return sb.ToString();
         }
 
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public class TestStringArray
+    {
+        public string[] testS = new string[8];
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendFormat("=======================================\n");
+            int i = 0;
+            foreach (string test in testS)
+            {
+                sb.AppendFormat("testS[{0}] = {1}\n", i++, test);
+            }
+            sb.AppendFormat("=======================================\n");
+            return base.ToString();
+        }
     }
 
     /// <summary>

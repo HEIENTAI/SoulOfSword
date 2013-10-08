@@ -208,7 +208,7 @@ namespace ExcelToJson
             {
                 // 避免element為Null，否則可能會讓後面method取不到資訊(string為例外狀況)
                 object elementObject = checkArray.GetValue(elementCount);
-                if (elementObject != typeof(string) && elementObject == null) { elementObject = Activator.CreateInstance(elementType); }
+                if (elementType != typeof(string) && elementObject == null) { elementObject = Activator.CreateInstance(elementType); }
 
                 if (elementType.IsArray)
                 {
@@ -349,7 +349,7 @@ namespace ExcelToJson
             {
                 // 避免element為Null，否則可能會讓後面method取不到資訊(string為例外狀況)
                 object elementObj = retArray.GetValue(elementCount);
-                if (elementObj != typeof(string) && elementObj == null) { elementObj = Activator.CreateInstance(elementType); }
+                if (elementType != typeof(string) && elementObj == null) { elementObj = Activator.CreateInstance(elementType); }
 
                 if (elementType.IsArray)
                 {

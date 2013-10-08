@@ -350,5 +350,17 @@ namespace NUnitTestForExcelToJson
         //    error = _excelToJsonString.ReadExcelFile(exceDirectorylPath, dci, NeedReadSite.CLIENT, out jsonString, out debugString);
         //    Assert.AreEqual(ReadExcelToJsonStringError.TABLE_TYPE_IS_NOT_CONFORM, error);
         //}
+
+        // 要測試讀取string array
+        [Test]
+        [Category("Test Read Excel File And Transfer Data")]
+        public void TestReadStringArray()
+        {
+            string jsonString = string.Empty;
+            string debugString = string.Empty;
+            EnumClassValue test = new EnumClassValue(typeof(TestStringArray), "EventData_TestStringArray");
+            ReadExcelToJsonStringError error = _excelToJsonString.ReadExcelFile(exceDirectorylPath, test, NeedReadSite.CLIENT, out jsonString, out debugString);
+            Assert.AreEqual(ReadExcelToJsonStringError.NONE, error);
+        }
     }
 }
